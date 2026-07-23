@@ -1,9 +1,14 @@
 import { AGENT_WALLET, walletUsdc, gatewayUsdc } from "@/lib/arc";
+import { getPolicy, getLedger, spentTodayUsdc } from "@/lib/store";
+import { PolicyCard, AgentActions } from "./controls";
 
 export const dynamic = "force-dynamic";
 
 export default async function Console() {
   const [wallet, gateway] = await Promise.all([walletUsdc(), gatewayUsdc()]);
+  const policy = getPolicy();
+  const ledger = getLedger();
+  const spent = spentTodayUsdc();
 
   return (
     <>
@@ -16,7 +21,7 @@ export default async function Console() {
         <div className="card">
           <div className="label">Gateway · Spendable</div>
           <div className="value">{gateway === "—" ? "—" : Number(gateway).toFixed(4)}</div>
-          <div className="sub">x402 nanopayments · domain 26</div>
+          <div className="sub">x402 nanopayments · domain 26 · spent today ${spent.toFixed(6)}</div>
         </div>
         <div className="card">
           <div className="label">USYC · Earning</div>
@@ -25,33 +30,26 @@ export default async function Console() {
         </div>
       </div>
 
+      <div className="grid grid-2">
+        <PolicyCard policy={policy} />
+        <AgentActions />
+      </div>
+
       <div className="section-title">Activity — live on Arc Testnet</div>
       <table className="ledger">
         <thead>
           <tr><th>Time (UTC)</th><th>Type</th><th>Detail</th><th>Amount</th><th>Status</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td>2026-07-23 04:31</td>
-            <td>x402 spend</td>
-            <td>ovolyn-demo-stall /oracle · eip155:5042002</td>
-            <td>-0.001000</td>
-            <td className="ok">SETTLED</td>
-          </tr>
-          <tr>
-            <td>2026-07-23 04:24</td>
-            <td>gateway deposit</td>
-            <td>direct on-chain · instant finality</td>
-            <td>-5.000000</td>
-            <td className="ok">CONFIRMED</td>
-          </tr>
-          <tr>
-            <td>2026-07-23 04:21</td>
-            <td>faucet fund</td>
-            <td>Circle testnet faucet</td>
-            <td>+20.000000</td>
-            <td className="ok">CONFIRMED</td>
-          </tr>
+          {ledger.map((e, i) => (
+            <tr key={i}>
+              <td>{e.ts.slice(0, 16).replace("T", " ")}</td>
+              <td>{e.type}</td>
+              <td>{e.detail}{e.reason ? ` — ${e.reason}` : ""}</td>
+              <td>{e.amount}</td>
+              <td className={e.status === "BLOCKED" ? "blocked" : "ok"}>{e.status}</td>
+            </tr>
+          ))}
         </tbody>
       </table>
     </>

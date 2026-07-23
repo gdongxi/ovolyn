@@ -36,6 +36,17 @@ app.get("/oracle", gateway.require("$0.001"), (req: PaidRequest, res) => {
   });
 });
 
+app.get("/deep-analysis", gateway.require("$0.05"), (req: PaidRequest, res) => {
+  const { payer, amount, network } = req.payment!;
+  console.log(`[stall] paid ${formatUnits(BigInt(amount), 6)} USDC by ${payer} on ${network}`);
+  res.json({
+    service: "ovolyn-demo-stall",
+    report: "Premium market microstructure report (deliberately priced above the default per-tx policy limit).",
+    paid_by: payer,
+    network,
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`[stall] listening at http://localhost:${PORT} — seller ${SELLER_ADDRESS}`);
 });

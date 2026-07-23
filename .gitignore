@@ -11,3 +11,4 @@ dist/
 *.log
 .vercel
 supabase/.temp/
+data/
