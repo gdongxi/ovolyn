@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>OVOLYN — Deck</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #fff; }
+  body { font-family: "Helvetica Neue", Helvetica, Arial, sans-serif; color: #0a0a0a; }
+  @page { size: 1280px 720px; margin: 0; }
+  .slide {
+    width: 1280px; height: 720px; page-break-after: always;
+    position: relative; overflow: hidden; background: #fff;
+    padding: 72px 88px; display: flex; flex-direction: column;
+  }
+  .masthead { position: absolute; top: 40px; left: 88px; font-size: 15px; letter-spacing: 0.32em; font-weight: 600; }
+  .pageno { position: absolute; bottom: 36px; right: 88px; font-size: 13px; color: #999; }
+  .foot { position: absolute; bottom: 36px; left: 88px; font-size: 13px; color: #999; letter-spacing: 0.06em; }
+  .kicker { font-size: 16px; letter-spacing: 0.28em; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 18px; }
+  h2 { font-size: 42px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.12; margin-bottom: 34px; }
+  .body { font-size: 24px; line-height: 1.5; }
+  .rule { border: none; border-top: 2px solid #0a0a0a; width: 64px; margin: 0 0 30px 0; }
+
+  /* cover */
+  .cover { align-items: center; justify-content: center; text-align: center; padding: 0; }
+  .cover img { width: 430px; margin-bottom: 8px; }
+  .cover .tagline { font-size: 30px; font-weight: 500; letter-spacing: 0.01em; margin-bottom: 26px; }
+  .cover .meta { font-size: 17px; color: #777; letter-spacing: 0.12em; text-transform: uppercase; }
+
+  /* problem cards */
+  .cards { display: flex; gap: 28px; margin-top: 8px; }
+  .card { flex: 1; border: 2px solid #0a0a0a; padding: 30px 28px; }
+  .card .n { font-size: 15px; letter-spacing: 0.22em; font-weight: 700; color: #888; margin-bottom: 14px; }
+  .card h3 { font-size: 26px; margin-bottom: 12px; }
+  .card p { font-size: 19px; line-height: 1.45; color: #333; }
+
+  /* verbs */
+  .verbs { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-top: 6px; }
+  .verb { border-left: 5px solid #0a0a0a; padding: 6px 0 6px 26px; }
+  .verb h3 { font-size: 30px; margin-bottom: 8px; }
+  .verb p { font-size: 20px; line-height: 1.45; color: #333; }
+  .verb .tool { font-size: 15px; color: #888; margin-top: 8px; font-family: "SF Mono", Menlo, monospace; }
+
+  /* flow */
+  .flow { display: flex; flex-direction: column; gap: 18px; margin-top: 4px; }
+  .flowrow { display: flex; align-items: center; gap: 16px; }
+  .node { border: 2px solid #0a0a0a; padding: 16px 22px; font-size: 20px; font-weight: 600; background: #fff; }
+  .node small { display: block; font-weight: 400; font-size: 15px; color: #666; margin-top: 4px; }
+  .arrow { font-size: 24px; color: #0a0a0a; }
+  .node.hub { background: #0a0a0a; color: #fff; }
+  .node.hub small { color: #bbb; }
+
+  /* why arc */
+  .why { display: grid; grid-template-columns: 1fr 1fr; gap: 24px 40px; margin-top: 4px; }
+  .why .item h3 { font-size: 25px; margin-bottom: 8px; }
+  .why .item p { font-size: 19px; line-height: 1.45; color: #333; }
+
+  /* traction */
+  .proof { background: #0a0a0a; color: #fff; padding: 34px 38px; margin-top: 4px; }
+  .proof .line { font-family: "SF Mono", Menlo, monospace; font-size: 19px; line-height: 1.9; }
+  .proof .line b { color: #7fff9e; font-weight: 600; }
+  .checkrow { display: flex; gap: 34px; margin-top: 26px; }
+  .check { font-size: 20px; }
+  .check::before { content: "✓  "; font-weight: 700; }
+
+  /* model */
+  .model-hero { font-size: 33px; font-weight: 600; line-height: 1.35; margin: 10px 0 36px 0; }
+  .fees { display: flex; gap: 28px; }
+  .fee { flex: 1; border-top: 3px solid #0a0a0a; padding-top: 18px; }
+  .fee h3 { font-size: 23px; margin-bottom: 8px; }
+  .fee p { font-size: 18px; color: #333; line-height: 1.45; }
+
+  /* roadmap */
+  .steps { margin-top: 6px; }
+  .step { display: flex; align-items: baseline; gap: 22px; padding: 15px 0; border-bottom: 1px solid #ddd; }
+  .step .date { width: 150px; font-size: 17px; font-weight: 700; letter-spacing: 0.04em; flex-shrink: 0; }
+  .step .what { font-size: 21px; }
+  .step .done { color: #888; }
+  .endline { margin-top: 34px; font-size: 20px; }
+  .endline a { color: #0a0a0a; }
+  code { font-family: "SF Mono", Menlo, monospace; font-size: 0.92em; }
+</style>
+</head>
+<body>
+
+<!-- 1 · Cover -->
+<section class="slide cover">
+  <img src="../demo_assets/logo_ovolyn.svg" alt="OVOLYN">
+  <div class="tagline">The Autonomous Bank for AI Agents</div>
+  <div class="meta">Programmable Money Hackathon · Built on Arc · 2026<br><br>Tracks — Agentic Economy · DeFi</div>
+</section>
+
+<!-- 2 · Problem -->
+<section class="slide">
+  <div class="masthead">OVOLYN</div>
+  <div class="kicker">Problem</div>
+  <h2>AI agents earn and spend money.<br>Their money has nowhere to live.</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="n">01</div>
+      <h3>Idle</h3>
+      <p>Agent funds sit in raw wallets earning nothing — a treasury that sleeps while the agent works.</p>
+    </div>
+    <div class="card">
+      <div class="n">02</div>
+      <h3>Ungoverned</h3>
+      <p>A private key is all-or-nothing. No limits, no allowlists, no budgets — one bad decision drains everything.</p>
+    </div>
+    <div class="card">
+      <div class="n">03</div>
+      <h3>High-friction</h3>
+      <p>Gas tokens to babysit, chains to bridge, manual top-ups. Machine-speed commerce on human-speed rails.</p>
+    </div>
+  </div>
+  <div class="foot">OVOLYN · Programmable Money Hackathon 2026</div>
+  <div class="pageno">2</div>
+</section>
+
+<!-- 3 · Solution -->
+<section class="slide">
+  <div class="masthead">OVOLYN</div>
+  <div class="kicker">Solution</div>
+  <h2>A bank account built for an autonomous depositor.</h2>
+  <div class="verbs">
+    <div class="verb">
+      <h3>Deposit</h3>
+      <p>Fund an agent account with USDC from any chain.</p>
+      <div class="tool">CCTP v2 · Bridge Kit</div>
+    </div>
+    <div class="verb">
+      <h3>Earn</h3>
+      <p>Idle balances auto-sweep into tokenized treasury yield.</p>
+      <div class="tool">USYC</div>
+    </div>
+    <div class="verb">
+      <h3>Govern</h3>
+      <p>A human CFO sets policy: per-tx limits, allowlists, budgets. Out-of-bounds spends are blocked.</p>
+      <div class="tool">Circle Agent Wallets</div>
+    </div>
+    <div class="verb">
+      <h3>Spend</h3>
+      <p>The agent pays for services autonomously, within policy, at machine speed.</p>
+      <div class="tool">x402 Nanopayments · Gateway</div>
+    </div>
+  </div>
+  <div class="foot">OVOLYN · Programmable Money Hackathon 2026</div>
+  <div class="pageno">3</div>
+</section>
+
+<!-- 4 · How it works -->
+<section class="slide">
+  <div class="masthead">OVOLYN</div>
+  <div class="kicker">How it works</div>
+  <h2>One account. Four money flows.</h2>
+  <div class="flow">
+    <div class="flowrow">
+      <div class="node">Any chain<small>USDC in via CCTP</small></div>
+      <div class="arrow">→</div>
+      <div class="node hub">Ovolyn Account · Arc<small>policy engine · balances · ledger</small></div>
+      <div class="arrow">→</div>
+      <div class="node">x402 services<small>autonomous spend, per-call pricing</small></div>
+    </div>
+    <div class="flowrow" style="padding-left: 330px;">
+      <div class="arrow">↓ idle</div>
+      <div class="node">USYC yield<small>auto-sweep, earns while agent sleeps</small></div>
+      <div class="arrow">·</div>
+      <div class="node">USDC ⇄ EURC<small>treasury rebalancing via Swap</small></div>
+    </div>
+  </div>
+  <p class="body" style="margin-top: 30px;">Every flow is policy-checked. Every movement lands on one auditable balance sheet: revenue in, yield accrued, spend out — gas included, denominated in USDC end to end.</p>
+  <div class="foot">OVOLYN · Programmable Money Hackathon 2026</div>
+  <div class="pageno">4</div>
+</section>
+
+<!-- 5 · Why Arc -->
+<section class="slide">
+  <div class="masthead">OVOLYN</div>
+  <div class="kicker">Why Arc</div>
+  <h2>The only chain where a bank for agents is native, not bolted on.</h2>
+  <div class="why">
+    <div class="item">
+      <h3>USDC is the gas token</h3>
+      <p>The treasury never touches a volatile asset — one currency for balances, payments and fees.</p>
+    </div>
+    <div class="item">
+      <h3>Sub-second settlement</h3>
+      <p>Machine-speed spending needs machine-speed finality. Our Gateway deposit confirmed instantly.</p>
+    </div>
+    <div class="item">
+      <h3>Swap — Arc Testnet exclusive</h3>
+      <p>USDC/EURC treasury rebalancing runs on the only testnet where Circle Swap exists.</p>
+    </div>
+    <div class="item">
+      <h3>First-party Circle stack</h3>
+      <p>Agent Wallets, Gateway, CCTP, USYC — the entire bank is composed from native primitives.</p>
+    </div>
+  </div>
+  <div class="foot">OVOLYN · Programmable Money Hackathon 2026</div>
+  <div class="pageno">5</div>
+</section>
+
+<!-- 6 · Traction -->
+<section class="slide">
+  <div class="masthead">OVOLYN</div>
+  <div class="kicker">It already works</div>
+  <h2>First nanopayment settled on Arc Testnet — July 23, 2026.</h2>
+  <div class="proof">
+    <div class="line">agent wallet   <b>0xec83…6c98</b>  provisioned via Circle Agent Stack</div>
+    <div class="line">gateway fund   <b>5 USDC</b>  direct on-chain deposit · instant finality</div>
+    <div class="line">paid request   <b>$0.001</b>  HTTP 402 → 200 · network eip155:5042002</div>
+    <div class="line">balance        <b>5.000000 → 4.999000</b>  settled via Circle Gateway</div>
+  </div>
+  <div class="checkrow">
+    <div class="check">x402 service stall live</div>
+    <div class="check">No API keys, no allowlists</div>
+    <div class="check">Open source</div>
+  </div>
+  <div class="foot">OVOLYN · Programmable Money Hackathon 2026</div>
+  <div class="pageno">6</div>
+</section>
+
+<!-- 7 · Business model -->
+<section class="slide">
+  <div class="masthead">OVOLYN</div>
+  <div class="kicker">Business model</div>
+  <h2>We monetize the balance sheet, not the payments.</h2>
+  <p class="model-hero">Payments are why the balance exists —<br>deposits are why the business exists.</p>
+  <div class="fees">
+    <div class="fee">
+      <h3>Yield share</h3>
+      <p>A spread on USYC treasury yield generated by idle agent balances.</p>
+    </div>
+    <div class="fee">
+      <h3>Management fees</h3>
+      <p>Policy engine, auditable ledger and treasury automation as the paid product.</p>
+    </div>
+    <div class="fee">
+      <h3>FX &amp; flow fees</h3>
+      <p>Basis points on USDC/EURC rebalancing and cross-chain deposits.</p>
+    </div>
+  </div>
+  <p class="body" style="margin-top: 36px; color:#555;">Core metric: TVL held in agent accounts. Neutral infrastructure — every agent marketplace is a channel, not a competitor.</p>
+  <div class="foot">OVOLYN · Programmable Money Hackathon 2026</div>
+  <div class="pageno">7</div>
+</section>
+
+<!-- 8 · Roadmap -->
+<section class="slide">
+  <div class="masthead">OVOLYN</div>
+  <div class="kicker">Roadmap</div>
+  <h2>From first payment to full bank by Demo Day.</h2>
+  <div class="steps">
+    <div class="step"><div class="date">JUL 23 ✓</div><div class="what done">Agent wallet · Gateway funding · first x402 nanopayment on Arc Testnet</div></div>
+    <div class="step"><div class="date">JUL 26</div><div class="what">Checkpoint 2 — repo + working payment loop</div></div>
+    <div class="step"><div class="date">AUG 02</div><div class="what">CFO console: policies, balances, live ledger · USYC auto-sweep</div></div>
+    <div class="step"><div class="date">AUG 09</div><div class="what">Final: CCTP deposit flow · USDC/EURC rebalancing · 3-min demo</div></div>
+    <div class="step"><div class="date">AUG 20</div><div class="what">Demo Day</div></div>
+  </div>
+  <div class="endline">
+    <code>github.com/gdongxi/ovolyn</code> &nbsp;·&nbsp; Tracks: Agentic Economy + DeFi &nbsp;·&nbsp; Solo build on Arc
+  </div>
+  <div class="foot">OVOLYN · Programmable Money Hackathon 2026</div>
+  <div class="pageno">8</div>
+</section>
+
+</body>
+</html>
