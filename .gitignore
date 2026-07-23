@@ -1,0 +1,13 @@
+# internal strategy docs — never push to the public repo
+HANDOFF.md
+SUBMISSION_FORM_ANSWERS.md
+
+node_modules/
+.env
+.env.local
+.next/
+dist/
+.DS_Store
+*.log
+.vercel
+supabase/.temp/
