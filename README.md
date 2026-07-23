@@ -44,7 +44,15 @@ any chain ──CCTP──▶ Ovolyn Account (Arc Testnet)
 
 ## Status
 
-Hackathon build in progress — Checkpoint 2 (2026-07-26): scaffold, architecture, tool verification. Final MVP due 2026-08-09.
+Hackathon build in progress — final MVP due 2026-08-09.
+
+- [x] Agent wallet provisioned on Arc Testnet via Circle Agent Stack
+- [x] Circle Gateway funded (direct on-chain deposit, sub-second finality)
+- [x] First x402 nanopayment completed on Arc Testnet — $0.001 USDC, 402 → 200, settled via Gateway ([`services/demo-stall/`](services/demo-stall/server.ts))
+- [ ] CFO console (policies, balances, yield)
+- [ ] USYC auto-sweep for idle balances
+- [ ] CCTP cross-chain deposit flow
+- [ ] USDC/EURC treasury rebalancing via Swap
 
 ## Team
 
