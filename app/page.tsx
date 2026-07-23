@@ -1,11 +1,12 @@
 import { AGENT_WALLET, walletUsdc, gatewayUsdc } from "@/lib/arc";
+import { treasuryBalances } from "@/lib/treasury";
 import { getPolicy, getLedger, spentTodayUsdc } from "@/lib/store";
-import { PolicyCard, AgentActions } from "./controls";
+import { PolicyCard, AgentActions, SweepButton } from "./controls";
 
 export const dynamic = "force-dynamic";
 
 export default async function Console() {
-  const [wallet, gateway] = await Promise.all([walletUsdc(), gatewayUsdc()]);
+  const [wallet, gateway, treasury] = await Promise.all([walletUsdc(), gatewayUsdc(), treasuryBalances()]);
   const policy = getPolicy();
   const ledger = getLedger();
   const spent = spentTodayUsdc();
@@ -25,8 +26,9 @@ export default async function Console() {
         </div>
         <div className="card">
           <div className="label">USYC · Earning</div>
-          <div className="value">0.00</div>
-          <div className="sub">auto-sweep — wiring in progress</div>
+          <div className="value">{treasury.usyc === "—" ? "—" : Number(treasury.usyc).toFixed(4)}</div>
+          <div className="sub">yield sleeve · Teller {`0x9fdF…105A`} · treasury float {Number(treasury.usdc).toFixed(2)} USDC</div>
+          <SweepButton />
         </div>
       </div>
 

@@ -43,6 +43,42 @@ export function PolicyCard({ policy }: { policy: Policy }) {
   );
 }
 
+export function SweepButton() {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [last, setLast] = useState<string | null>(null);
+
+  async function sweep() {
+    setBusy(true);
+    setLast(null);
+    try {
+      const res = await fetch("/api/treasury/sweep", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ amountUsdc: 3 }),
+      });
+      const data = await res.json();
+      setLast(
+        data.outcome === "SWEPT"
+          ? `✓ swept 3 USDC → minted ${data.mintedUsyc} USYC`
+          : `error — ${data.reason}`,
+      );
+    } finally {
+      setBusy(false);
+      router.refresh();
+    }
+  }
+
+  return (
+    <>
+      <button className="btn btn-outline" onClick={sweep} disabled={busy} style={{ marginTop: 10 }}>
+        {busy ? "Sweeping… (~1 min)" : "Sweep 3 USDC idle → USYC"}
+      </button>
+      {last && <div className={`spend-result ${last.startsWith("✓") ? "ok" : "blocked"}`}>{last}</div>}
+    </>
+  );
+}
+
 const STALL = "http://localhost:4021";
 
 export function AgentActions() {

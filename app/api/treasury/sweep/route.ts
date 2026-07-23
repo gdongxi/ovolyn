@@ -1,0 +1,14 @@
+import { NextResponse } from "next/server";
+import { sweepToUsyc } from "@/lib/treasury";
+
+export const maxDuration = 300;
+
+export async function POST(req: Request) {
+  const { amountUsdc } = await req.json();
+  const amount = Number(amountUsdc);
+  if (!Number.isFinite(amount) || amount <= 0 || amount > 100) {
+    return NextResponse.json({ error: "invalid amount" }, { status: 400 });
+  }
+  const result = await sweepToUsyc(amount);
+  return NextResponse.json(result, { status: result.outcome === "ERROR" ? 500 : 200 });
+}

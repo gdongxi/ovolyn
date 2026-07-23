@@ -31,6 +31,7 @@
     "typescript": "7.0.2"
   },
   "dependencies": {
+    "@circle-fin/developer-controlled-wallets": "^10.8.0",
     "@circle-fin/x402-batching": "^3.2.0",
     "@x402/core": "^2.19.0",
     "@x402/evm": "^2.19.0",

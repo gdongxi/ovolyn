@@ -49,10 +49,12 @@ Hackathon build in progress — final MVP due 2026-08-09.
 - [x] Agent wallet provisioned on Arc Testnet via Circle Agent Stack
 - [x] Circle Gateway funded (direct on-chain deposit, sub-second finality)
 - [x] First x402 nanopayment completed on Arc Testnet — $0.001 USDC, 402 → 200, settled via Gateway ([`services/demo-stall/`](services/demo-stall/server.ts))
-- [ ] CFO console (policies, balances, yield)
-- [ ] USYC auto-sweep for idle balances
+- [x] CFO console with live balances, editable spending policy, agent spend actions
+- [x] Policy enforcement verified on-chain: in-bounds $0.001 settled, out-of-bounds $0.05 **blocked** by per-tx limit
+- [x] USYC idle sweep live: agent wallet → treasury → Teller.deposit, 3 USDC → 2.650424 USYC minted on Arc Testnet
 - [ ] CCTP cross-chain deposit flow
 - [ ] USDC/EURC treasury rebalancing via Swap
+- [ ] 3-minute demo video + final deck
 
 ## Team
 
