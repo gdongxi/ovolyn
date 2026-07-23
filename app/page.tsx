@@ -1,7 +1,7 @@
 import { AGENT_WALLET, walletUsdc, gatewayUsdc } from "@/lib/arc";
 import { treasuryBalances } from "@/lib/treasury";
 import { getPolicy, getLedger, spentTodayUsdc } from "@/lib/store";
-import { PolicyCard, AgentActions, SweepButton } from "./controls";
+import { PolicyCard, AgentActions, SweepButton, DepositButton } from "./controls";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +18,7 @@ export default async function Console() {
           <div className="label">Wallet · USDC</div>
           <div className="value">{Number(wallet).toFixed(2)}</div>
           <div className="sub">{AGENT_WALLET}</div>
+          <DepositButton />
         </div>
         <div className="card">
           <div className="label">Gateway · Spendable</div>

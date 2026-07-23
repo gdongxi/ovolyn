@@ -43,6 +43,42 @@ export function PolicyCard({ policy }: { policy: Policy }) {
   );
 }
 
+export function DepositButton() {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [last, setLast] = useState<string | null>(null);
+
+  async function deposit() {
+    setBusy(true);
+    setLast(null);
+    try {
+      const res = await fetch("/api/deposit/cctp", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ amountUsdc: 1 }),
+      });
+      const data = await res.json();
+      setLast(
+        data.outcome === "DEPOSITED"
+          ? `✓ deposited — mint ${String(data.mintTx).slice(0, 10)}…`
+          : `error — ${data.reason}`,
+      );
+    } finally {
+      setBusy(false);
+      router.refresh();
+    }
+  }
+
+  return (
+    <>
+      <button className="btn btn-outline" onClick={deposit} disabled={busy} style={{ marginTop: 10 }}>
+        {busy ? "Bridging… (~1-3 min)" : "Deposit 1 USDC from Sepolia · CCTP"}
+      </button>
+      {last && <div className={`spend-result ${last.startsWith("✓") ? "ok" : "blocked"}`}>{last}</div>}
+    </>
+  );
+}
+
 export function SweepButton() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
