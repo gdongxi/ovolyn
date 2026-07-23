@@ -11,7 +11,7 @@ export type Policy = {
 
 export type LedgerEntry = {
   ts: string; // ISO
-  type: "x402 spend" | "gateway deposit" | "faucet fund" | "blocked spend" | "usyc sweep" | "cctp deposit";
+  type: "x402 spend" | "gateway deposit" | "faucet fund" | "blocked spend" | "usyc sweep" | "cctp deposit" | "fx swap";
   detail: string;
   amount: string; // signed, e.g. "-0.001000"
   status: "SETTLED" | "CONFIRMED" | "BLOCKED";

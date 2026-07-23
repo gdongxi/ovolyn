@@ -1,7 +1,7 @@
 import { AGENT_WALLET, walletUsdc, gatewayUsdc } from "@/lib/arc";
 import { treasuryBalances } from "@/lib/treasury";
 import { getPolicy, getLedger, spentTodayUsdc } from "@/lib/store";
-import { PolicyCard, AgentActions, SweepButton, DepositButton } from "./controls";
+import { PolicyCard, AgentActions, SweepButton, DepositButton, FxCard } from "./controls";
 
 export const dynamic = "force-dynamic";
 
@@ -33,9 +33,10 @@ export default async function Console() {
         </div>
       </div>
 
-      <div className="grid grid-2">
+      <div className="grid">
         <PolicyCard policy={policy} />
         <AgentActions />
+        <FxCard eurc={treasury.eurc} usdcFloat={Number(treasury.usdc).toFixed(2)} />
       </div>
 
       <div className="section-title">Activity — live on Arc Testnet</div>

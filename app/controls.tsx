@@ -115,6 +115,46 @@ export function SweepButton() {
   );
 }
 
+export function FxCard({ eurc, usdcFloat }: { eurc: string; usdcFloat: string }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+  const [last, setLast] = useState<string | null>(null);
+
+  async function swap() {
+    setBusy(true);
+    setLast(null);
+    try {
+      const res = await fetch("/api/treasury/swap", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ amountUsdc: 2 }),
+      });
+      const data = await res.json();
+      setLast(
+        data.outcome === "SWAPPED"
+          ? `✓ swapped ${data.amountIn} USDC → ${data.amountOut} EURC`
+          : `error — ${data.reason}`,
+      );
+    } finally {
+      setBusy(false);
+      router.refresh();
+    }
+  }
+
+  return (
+    <div className="card">
+      <div className="label">FX · Treasury Rebalance</div>
+      <div className="policy-row"><span>EURC</span><span className="mono-sm">{eurc}</span></div>
+      <div className="policy-row"><span>USDC float</span><span className="mono-sm">{usdcFloat}</span></div>
+      <button className="btn btn-outline" onClick={swap} disabled={busy}>
+        {busy ? "Swapping…" : "Rebalance 2 USDC → EURC"}
+      </button>
+      <div className="mono-sm" style={{ marginTop: 10 }}>Swap · Arc Testnet exclusive</div>
+      {last && <div className={`spend-result ${last.startsWith("✓") ? "ok" : "blocked"}`}>{last}</div>}
+    </div>
+  );
+}
+
 const STALL = "http://localhost:4021";
 
 export function AgentActions() {

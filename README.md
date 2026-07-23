@@ -53,10 +53,10 @@ Hackathon build in progress — final MVP due 2026-08-09.
 - [x] Policy enforcement verified on-chain: in-bounds $0.001 settled, out-of-bounds $0.05 **blocked** by per-tx limit
 - [x] USYC idle sweep live: agent wallet → treasury → Teller.deposit, 3 USDC → 2.650424 USYC minted on Arc Testnet
 - [x] CCTP V2 cross-chain deposit live: Sepolia burn → fast attestation → mint to the agent wallet on Arc
-- [ ] USDC/EURC treasury rebalancing via Swap
+- [x] USDC/EURC treasury rebalancing via Swap — the only testnet where this exists (2 USDC → 1.538147 EURC, live)
 - [ ] 3-minute demo video + final deck
 
-**All four verbs — deposit, earn, govern, spend — are now live and demoable from one console.**
+**All four verbs — deposit, earn, govern, spend — plus FX rebalancing are live and demoable from one console.**
 
 ## Team
 

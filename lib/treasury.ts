@@ -26,14 +26,14 @@ function orch() {
   return { walletId: process.env.ORCH_WALLET_ID!, address: process.env.ORCH_ADDRESS! };
 }
 
-export async function treasuryBalances(): Promise<{ usyc: string; usdc: string }> {
+export async function treasuryBalances(): Promise<{ usyc: string; usdc: string; eurc: string }> {
   try {
     const res = await dcw().getWalletTokenBalance({ id: orch().walletId });
     const find = (sym: string) =>
       res.data?.tokenBalances?.find((b: any) => b.token.symbol === sym)?.amount ?? "0";
-    return { usyc: find("USYC"), usdc: find("USDC") };
+    return { usyc: find("USYC"), usdc: find("USDC"), eurc: find("EURC") };
   } catch {
-    return { usyc: "—", usdc: "—" };
+    return { usyc: "—", usdc: "—", eurc: "—" };
   }
 }
 
