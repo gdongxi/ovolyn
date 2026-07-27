@@ -8,6 +8,7 @@ export function PolicyCard({ policy }: { policy: Policy }) {
   const router = useRouter();
   const [perTx, setPerTx] = useState(String(policy.perTxLimitUsdc));
   const [budget, setBudget] = useState(String(policy.dailyBudgetUsdc));
+  const [idle, setIdle] = useState(String(policy.idleThresholdUsdc));
   const [saving, setSaving] = useState(false);
 
   async function save() {
@@ -15,7 +16,11 @@ export function PolicyCard({ policy }: { policy: Policy }) {
     await fetch("/api/policy", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ perTxLimitUsdc: Number(perTx), dailyBudgetUsdc: Number(budget) }),
+      body: JSON.stringify({
+        perTxLimitUsdc: Number(perTx),
+        dailyBudgetUsdc: Number(budget),
+        idleThresholdUsdc: Number(idle),
+      }),
     });
     setSaving(false);
     router.refresh();
@@ -31,6 +36,10 @@ export function PolicyCard({ policy }: { policy: Policy }) {
       <div className="policy-row">
         <span>Daily budget</span>
         <span className="policy-input">$<input value={budget} onChange={(e) => setBudget(e.target.value)} /></span>
+      </div>
+      <div className="policy-row">
+        <span>Idle threshold</span>
+        <span className="policy-input">$<input value={idle} onChange={(e) => setIdle(e.target.value)} /></span>
       </div>
       <div className="policy-row">
         <span>Allowlist</span>
@@ -88,17 +97,16 @@ export function SweepButton() {
     setBusy(true);
     setLast(null);
     try {
-      const res = await fetch("/api/treasury/sweep", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ amountUsdc: 3 }),
-      });
+      const res = await fetch("/api/treasury/autosweep", { method: "POST" });
       const data = await res.json();
-      setLast(
-        data.outcome === "SWEPT"
-          ? `✓ swept 3 USDC → minted ${data.mintedUsyc} USYC`
-          : `error — ${data.reason}`,
-      );
+      const d = data.decision;
+      if (d?.action === "HOLD") {
+        setLast(`· holding — ${d.reason}`);
+      } else if (data.result?.outcome === "SWEPT") {
+        setLast(`✓ idle ${d.idle.toFixed(2)} > threshold ${d.threshold.toFixed(2)} — swept ${d.amount} USDC → minted ${data.result.mintedUsyc} USYC`);
+      } else {
+        setLast(`error — ${data.result?.reason ?? data.error ?? "unknown"}`);
+      }
     } finally {
       setBusy(false);
       router.refresh();
@@ -108,9 +116,11 @@ export function SweepButton() {
   return (
     <>
       <button className="btn btn-outline" onClick={sweep} disabled={busy} style={{ marginTop: 10 }}>
-        {busy ? "Sweeping… (~1 min)" : "Sweep 3 USDC idle → USYC"}
+        {busy ? "Evaluating…" : "Run idle sweep rule"}
       </button>
-      {last && <div className={`spend-result ${last.startsWith("✓") ? "ok" : "blocked"}`}>{last}</div>}
+      {last && (
+        <div className={`spend-result ${last.startsWith("✓") ? "ok" : last.startsWith("·") ? "" : "blocked"}`}>{last}</div>
+      )}
     </>
   );
 }

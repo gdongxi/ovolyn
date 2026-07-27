@@ -53,3 +53,6 @@ table.ledger th { text-align: left; font-size: 12px; letter-spacing: 0.14em; tex
 table.ledger td { padding: 12px; font-size: 15px; border-bottom: 1px solid var(--line); font-family: var(--mono); }
 .ok { color: var(--good); font-weight: 600; }
 .blocked { color: var(--bad); font-weight: 600; }
+.empty { color: var(--muted); font-family: inherit; font-style: italic; padding: 28px 12px; }
+.tx { margin-left: 10px; color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--muted); }
+.tx:hover { color: var(--ink); border-color: var(--ink); }

@@ -45,12 +45,22 @@ export async function fxRebalance(amountUsdc: number): Promise<FxResult> {
     appendLedger({
       ts: new Date().toISOString(),
       type: "fx swap",
-      detail: `treasury rebalance · ${amountUsdc.toFixed(2)} USDC → ${amountOut} EURC · Swap (Arc Testnet exclusive)`,
+      detail: `treasury rebalance · ${amountUsdc.toFixed(2)} USDC → ${amountOut} EURC · testnet pool rate, not market`,
       amount: `-${amountUsdc.toFixed(6)}`,
       status: "CONFIRMED",
+      txHash: txHash || undefined,
     });
     return { outcome: "SWAPPED", amountIn: amountUsdc.toFixed(2), amountOut, txHash };
   } catch (e) {
-    return { outcome: "ERROR", reason: String(e).slice(0, 300) };
+    const reason = String(e).slice(0, 300);
+    appendLedger({
+      ts: new Date().toISOString(),
+      type: "fx swap",
+      detail: `treasury rebalance · ${amountUsdc.toFixed(2)} USDC → EURC`,
+      amount: `-${amountUsdc.toFixed(6)}`,
+      status: "FAILED",
+      reason,
+    });
+    return { outcome: "ERROR", reason };
   }
 }

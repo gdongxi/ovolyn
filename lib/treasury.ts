@@ -63,6 +63,32 @@ async function tellerCall(label: string, input: Record<string, unknown>): Promis
   return waitTx(client, label, id);
 }
 
+export type AutoSweepDecision =
+  | { action: "SWEEP"; idle: number; threshold: number; amount: number }
+  | { action: "HOLD"; idle: number; threshold: number; reason: string };
+
+/**
+ * The rule behind "idle balances earn": anything above the operator's idle
+ * threshold is excess working capital and belongs in the yield sleeve.
+ * Evaluated on every console load; the operator sets the threshold.
+ */
+export function evaluateAutoSweep(idleUsdc: number, thresholdUsdc: number): AutoSweepDecision {
+  const excess = idleUsdc - thresholdUsdc;
+  if (excess < MIN_SWEEP_USDC) {
+    return {
+      action: "HOLD",
+      idle: idleUsdc,
+      threshold: thresholdUsdc,
+      reason: excess <= 0
+        ? `idle ${idleUsdc.toFixed(2)} is at or below the ${thresholdUsdc.toFixed(2)} threshold`
+        : `excess ${excess.toFixed(2)} is below the ${MIN_SWEEP_USDC} minimum sweep`,
+    };
+  }
+  return { action: "SWEEP", idle: idleUsdc, threshold: thresholdUsdc, amount: Number(excess.toFixed(2)) };
+}
+
+const MIN_SWEEP_USDC = 1;
+
 export type SweepResult = {
   outcome: "SWEPT" | "ERROR";
   reason?: string;
@@ -112,9 +138,19 @@ export async function sweepToUsyc(amountUsdc: number): Promise<SweepResult> {
       detail: `idle sweep · agent → treasury → Teller.deposit · minted ${minted} USYC`,
       amount: `-${amountUsdc.toFixed(6)}`,
       status: "CONFIRMED",
+      txHash: depositTx,
     });
     return { outcome: "SWEPT", transferTx, depositTx, mintedUsyc: minted };
   } catch (e) {
-    return { outcome: "ERROR", reason: String(e).slice(0, 300) };
+    const reason = String(e).slice(0, 300);
+    appendLedger({
+      ts: new Date().toISOString(),
+      type: "usyc sweep",
+      detail: "idle sweep · agent → treasury → Teller.deposit",
+      amount: `-${amountUsdc.toFixed(6)}`,
+      status: "FAILED",
+      reason,
+    });
+    return { outcome: "ERROR", reason };
   }
 }

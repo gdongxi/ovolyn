@@ -7,6 +7,8 @@ export type Policy = {
   perTxLimitUsdc: number;
   dailyBudgetUsdc: number;
   allowlist: string[];
+  /** Idle USDC above this stays in the spending wallet; the excess sweeps to yield. */
+  idleThresholdUsdc: number;
 };
 
 export type LedgerEntry = {
@@ -14,40 +16,22 @@ export type LedgerEntry = {
   type: "x402 spend" | "gateway deposit" | "faucet fund" | "blocked spend" | "usyc sweep" | "cctp deposit" | "fx swap";
   detail: string;
   amount: string; // signed, e.g. "-0.001000"
-  status: "SETTLED" | "CONFIRMED" | "BLOCKED";
+  status: "SETTLED" | "CONFIRMED" | "BLOCKED" | "FAILED";
   reason?: string;
+  /** Arc tx hash when the movement reached the chain — renders as an explorer link. */
+  txHash?: string;
 };
 
 const DEFAULT_POLICY: Policy = {
   perTxLimitUsdc: 0.01,
   dailyBudgetUsdc: 0.1,
   allowlist: ["http://localhost:4021"],
+  idleThresholdUsdc: 10,
 };
 
-// Real events from the first on-chain session (2026-07-23).
-const SEED_LEDGER: LedgerEntry[] = [
-  {
-    ts: "2026-07-23T04:31:00Z",
-    type: "x402 spend",
-    detail: "ovolyn-demo-stall /oracle · eip155:5042002",
-    amount: "-0.001000",
-    status: "SETTLED",
-  },
-  {
-    ts: "2026-07-23T04:24:00Z",
-    type: "gateway deposit",
-    detail: "direct on-chain · instant finality",
-    amount: "-5.000000",
-    status: "CONFIRMED",
-  },
-  {
-    ts: "2026-07-23T04:21:00Z",
-    type: "faucet fund",
-    detail: "Circle testnet faucet",
-    amount: "+20.000000",
-    status: "CONFIRMED",
-  },
-];
+// The ledger starts empty. Every row is written by an actual money movement
+// executed through this app — nothing is seeded.
+const EMPTY_LEDGER: LedgerEntry[] = [];
 
 function file(name: string): string {
   mkdirSync(DATA_DIR, { recursive: true });
@@ -69,7 +53,7 @@ function save(name: string, value: unknown): void {
 }
 
 export function getPolicy(): Policy {
-  return load<Policy>("policy.json", DEFAULT_POLICY);
+  return { ...DEFAULT_POLICY, ...load<Partial<Policy>>("policy.json", {}) };
 }
 
 export function setPolicy(p: Policy): void {
@@ -77,7 +61,7 @@ export function setPolicy(p: Policy): void {
 }
 
 export function getLedger(): LedgerEntry[] {
-  return load<LedgerEntry[]>("ledger.json", SEED_LEDGER);
+  return load<LedgerEntry[]>("ledger.json", EMPTY_LEDGER);
 }
 
 export function appendLedger(entry: LedgerEntry): void {

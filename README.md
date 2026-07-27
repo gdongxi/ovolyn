@@ -15,7 +15,7 @@ AI agents are becoming economic actors — they buy API calls, pay for inference
 Ovolyn is that missing layer:
 
 - **Deposit** — fund an agent account with USDC from any chain (CCTP v2 / Bridge Kit)
-- **Earn** — idle balances auto-sweep into tokenized treasury yield (USYC)
+- **Earn** — idle balances above a threshold sweep into tokenized treasury yield (USYC)
 - **Govern** — the human CFO sets spending policy: per-tx limits, allowlists, budgets; out-of-bounds spends are blocked on-chain
 - **Spend** — the agent autonomously pays for services via x402 nanopayments and rebalances currencies via Swap (Arc Testnet exclusive)
 
@@ -25,22 +25,22 @@ We monetize the balance sheet, not the payments — payments are why the balance
 
 ```
 any chain ──CCTP──▶ Ovolyn Account (Arc Testnet)
-                      ├─ idle balance ──auto-sweep──▶ USYC yield
+                      ├─ idle balance ──sweep──▶ USYC yield
                       ├─ policy engine (limits / allowlists / budgets)
                       └─ agent spend ──x402 nanopayments──▶ services
-                                     └─ swap-kit ──▶ USDC / EURC rebalancing
+                                     └─ Swap ──▶ USDC / EURC rebalancing
 ```
 
 ## Circle / Arc stack used
 
-| Layer | Product |
+| Layer | How it is integrated |
 |---|---|
-| Chain | Arc Testnet (USDC-native gas) |
-| Cross-chain deposits | CCTP v2 via `@circle-fin/bridge-kit` |
-| Agent wallets & policies | Circle Agent Stack (Agent Wallets + CLI) |
-| Micropayments | Nanopayments / x402 (`@circle-fin/x402-batching`) |
-| FX / rebalancing | `@circle-fin/swap-kit` (USDC · EURC — Swap is Arc-Testnet-exclusive) |
-| Yield | USYC (tokenized treasury) |
+| Chain | Arc Testnet (chain 5042002), USDC-native gas |
+| Cross-chain deposits | CCTP V2 contracts called directly (`TokenMessengerV2.depositForBurn` on Sepolia → Circle attestation → `MessageTransmitterV2.receiveMessage` on Arc) via `@circle-fin/developer-controlled-wallets` |
+| Agent wallets & spending | Circle Agent Stack — agent wallet + `@circle-fin/cli` for Gateway funding and x402 payment |
+| Micropayments | Nanopayments / x402 — `@circle-fin/x402-batching` (seller middleware) |
+| FX / rebalancing | Circle App Kit — `@circle-fin/app-kit` + `@circle-fin/adapter-circle-wallets` (Swap is Arc-Testnet-exclusive among testnets) |
+| Yield | USYC via the issuer's Teller contract (allowlisted treasury wallet) |
 
 ## Status
 

@@ -15,7 +15,9 @@ type PaidRequest = express.Request & {
   };
 };
 
-const SELLER_ADDRESS = process.env.SELLER_ADDRESS ?? "0xec831132b305310837f921ec7656b55356a36c98";
+// Must never be the buyer's own wallet: the stall is an independent merchant
+// whose revenue lands in its own address.
+const SELLER_ADDRESS = process.env.SELLER_ADDRESS ?? "0x705197b03726d10d220e06f2c097ff34727eb8d3";
 const PORT = Number(process.env.PORT ?? 4021);
 
 const app = express();

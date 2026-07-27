@@ -11,9 +11,14 @@ export async function POST(req: Request) {
   const next: Policy = {
     perTxLimitUsdc: Number(body.perTxLimitUsdc ?? current.perTxLimitUsdc),
     dailyBudgetUsdc: Number(body.dailyBudgetUsdc ?? current.dailyBudgetUsdc),
+    idleThresholdUsdc: Number(body.idleThresholdUsdc ?? current.idleThresholdUsdc),
     allowlist: Array.isArray(body.allowlist) ? body.allowlist : current.allowlist,
   };
-  if (!Number.isFinite(next.perTxLimitUsdc) || !Number.isFinite(next.dailyBudgetUsdc)) {
+  if (
+    !Number.isFinite(next.perTxLimitUsdc) ||
+    !Number.isFinite(next.dailyBudgetUsdc) ||
+    !Number.isFinite(next.idleThresholdUsdc)
+  ) {
     return NextResponse.json({ error: "invalid numbers" }, { status: 400 });
   }
   setPolicy(next);

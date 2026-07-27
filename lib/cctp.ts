@@ -76,13 +76,16 @@ export async function cctpDeposit(amountUsdc: number): Promise<DepositResult> {
   const mintRecipient = "0x" + AGENT_WALLET.slice(2).toLowerCase().padStart(64, "0");
   const sepoliaWalletId = process.env.SEPOLIA_WALLET_ID!;
   const orchWalletId = process.env.ORCH_WALLET_ID!;
+  // Tracked outside the try so a failure after the burn still records the hash —
+  // burned-but-not-minted funds are recoverable only if this survives.
+  let burnTx = "";
   try {
     await exec(sepoliaWalletId, "approve", {
       contractAddress: USDC_SEPOLIA,
       abiFunctionSignature: "approve(address,uint256)",
       abiParameters: [TOKEN_MESSENGER_V2, micro],
     });
-    const burnTx = await exec(sepoliaWalletId, "depositForBurn", {
+    burnTx = await exec(sepoliaWalletId, "depositForBurn", {
       contractAddress: TOKEN_MESSENGER_V2,
       abiFunctionSignature: "depositForBurn(uint256,uint32,bytes32,address,bytes32,uint256,uint32)",
       abiParameters: [micro, DST_DOMAIN, mintRecipient, USDC_SEPOLIA, ZERO32, MAX_FEE_MICRO, FINALITY_FAST],
@@ -96,12 +99,24 @@ export async function cctpDeposit(amountUsdc: number): Promise<DepositResult> {
     appendLedger({
       ts: new Date().toISOString(),
       type: "cctp deposit",
-      detail: `Sepolia → Arc · CCTP V2 fast · burn ${burnTx.slice(0, 10)}… mint ${mintTx.slice(0, 10)}…`,
+      detail: `Sepolia → Arc · CCTP V2 fast · burn ${burnTx.slice(0, 10)}…`,
       amount: `+${amountUsdc.toFixed(6)}`,
       status: "CONFIRMED",
+      txHash: mintTx,
     });
     return { outcome: "DEPOSITED", burnTx, mintTx };
   } catch (e) {
-    return { outcome: "ERROR", reason: String(e).slice(0, 300) };
+    const reason = String(e).slice(0, 300);
+    appendLedger({
+      ts: new Date().toISOString(),
+      type: "cctp deposit",
+      detail: burnTx
+        ? `Sepolia → Arc · burned ${burnTx.slice(0, 10)}… but not minted — funds recoverable by replaying the attestation`
+        : "Sepolia → Arc · failed before burn — no funds moved",
+      amount: `+${amountUsdc.toFixed(6)}`,
+      status: "FAILED",
+      reason,
+    });
+    return { outcome: "ERROR", reason, burnTx: burnTx || undefined };
   }
 }
