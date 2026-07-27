@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="demo_assets/logo_ovolyn.svg" alt="OVOLYN" width="360" />
+  <img src="demo_assets/brand/ovolyn-lockup-horizontal.svg" alt="OVOLYN" width="320" />
 </p>
 
 # OVOLYN — The Autonomous Bank for AI Agents
