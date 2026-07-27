@@ -2,6 +2,8 @@ import { AGENT_WALLET, walletUsdc, gatewayUsdc } from "@/lib/arc";
 import { treasuryBalances } from "@/lib/treasury";
 import { getPolicy, getLedger, spentTodayUsdc } from "@/lib/store";
 import { PolicyCard, AgentActions, SweepButton, DepositButton, FxCard } from "./controls";
+import { RunPanel } from "./runpanel";
+import { readRun } from "@/lib/runbook";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +21,8 @@ export default async function Console() {
 
   return (
     <>
+      <RunPanel initial={readRun()} />
+
       <div className="grid">
         <div className="card">
           <div className="label">Wallet · USDC</div>

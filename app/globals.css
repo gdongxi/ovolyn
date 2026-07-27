@@ -37,6 +37,29 @@ body {
 
 .grid-2 { grid-template-columns: 1fr 1fr; }
 
+/* Run the bank — the orchestrated demo sequence */
+.runpanel { border: 2px solid var(--ink); padding: 26px 28px; margin-bottom: 32px; }
+.runhead { display: flex; justify-content: space-between; align-items: center; gap: 32px; margin-bottom: 22px; }
+.runhead > div:first-child { flex: 1 1 auto; min-width: 0; }
+.runhead .label, .runhead .mono-sm { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.runhead .btn.runbtn { width: auto; flex: 0 0 auto; margin-top: 0; padding: 12px 34px; }
+.stages { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; }
+.stage { display: flex; gap: 12px; align-items: flex-start; padding: 16px; border: 1px solid var(--line); }
+.stage.running { border-color: var(--ink); }
+.stage.done { border-color: var(--good); }
+.stage.failed { border-color: var(--bad); }
+.stage.skipped { opacity: 0.65; }
+.stagemark { font-size: 17px; line-height: 1.25; }
+.stage.running .stagemark { animation: pulse 1s ease-in-out infinite; }
+.stage.done .stagemark { color: var(--good); }
+.stage.failed .stagemark { color: var(--bad); }
+@keyframes pulse { 50% { opacity: 0.25; } }
+.stagebody { min-width: 0; }
+.stagetitle { font-size: 15px; font-weight: 700; display: flex; justify-content: space-between; gap: 10px; }
+.stagetime { font-family: var(--mono); font-size: 12px; color: var(--muted); font-weight: 400; }
+.stagecaption { font-size: 13px; color: #444; line-height: 1.45; margin-top: 6px; word-break: break-word; }
+.stage-empty { grid-column: 1 / -1; color: var(--muted); font-style: italic; font-size: 14px; }
+
 .policy-row { display: flex; justify-content: space-between; align-items: center; font-size: 15px; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .policy-input input { width: 72px; border: none; border-bottom: 2px solid var(--ink); font-size: 15px; font-family: var(--mono); outline: none; text-align: right; }
 .mono-sm { font-family: var(--mono); font-size: 12px; color: var(--muted); }
