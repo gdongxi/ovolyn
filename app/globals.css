@@ -73,7 +73,10 @@ body {
   font-family: var(--mono); font-size: 14px; text-align: right; outline: none; margin-left: 4px; }
 .agentgrant .btn { width: auto; margin-top: 0; padding: 9px 18px; font-size: 13px; }
 .keyreveal { border: 2px solid var(--good); padding: 18px 20px; margin-bottom: 22px; }
-.keyreveal code { display: block; font-size: 14px; margin: 10px 0; word-break: break-all; }
+.keyreveal code { display: block; font-size: 13px; margin: 10px 0; word-break: break-all;
+  background: #f6f6f6; padding: 12px 14px; line-height: 1.5; }
+.pairactions { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+.pairactions .btn { width: auto; margin-top: 0; padding: 8px 18px; font-size: 13px; }
 
 /* Agent loop — model proposes, policy disposes */
 .goalbox { width: 100%; border: 1px solid var(--line); padding: 12px 14px; font-family: inherit;

@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { currentAccountId } from "@/lib/session";
-import { listAgents, issueAgentKey, setAgentAllowance, revokeAgent, getAccount } from "@/lib/accounts";
+import {
+  listAgents, issueAgentKey, setAgentAllowance, revokeAgent, getAccount, redeemPairingCode,
+} from "@/lib/accounts";
 
 /**
  * Agent identities. An agent may register itself here against an account that
@@ -15,18 +17,24 @@ export async function GET() {
   return NextResponse.json(listAgents(accountId));
 }
 
-/** Register an agent. Requires an existing account; grants nothing. */
+/**
+ * An agent registers itself here, redeeming the one-time pairing code its
+ * owner handed it. No session is involved — the agent is not a human and has
+ * none — but it cannot attach to an account without an invitation, and it
+ * cannot create one.
+ */
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}));
-  // Either the owner is signed in, or the caller names the account it attaches
-  // to — the account must already exist. There is no path that creates one.
-  const sessionAccount = await currentAccountId();
-  const accountId = sessionAccount ?? String(body.accountId ?? "");
-  if (!accountId || !getAccount(accountId)) {
+  const code = String(body.pairingCode ?? "");
+  if (!code) {
     return NextResponse.json(
-      { error: "no such account — an account must be opened by its owner before an agent can register" },
-      { status: 404 },
+      { error: "pairingCode required — ask your owner to issue one from their account page" },
+      { status: 401 },
     );
+  }
+  const accountId = redeemPairingCode(code);
+  if (!accountId || !getAccount(accountId)) {
+    return NextResponse.json({ error: "pairing code is unknown, already used, or expired" }, { status: 401 });
   }
   const name = String(body.name ?? "agent").slice(0, 40);
   const { agent, key } = issueAgentKey(accountId, name);

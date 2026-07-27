@@ -29,7 +29,7 @@ export default async function AccountPage() {
         </div>
       </div>
 
-      <AgentManager accountId={accountId} agents={listAgents(accountId)} />
+      <AgentManager agents={listAgents(accountId)} />
     </>
   );
 }

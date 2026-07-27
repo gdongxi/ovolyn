@@ -43,7 +43,20 @@ export type AgentRecord = {
   lastUsedAt?: string;
 };
 
-type Db = { accounts: Account[]; agents: AgentRecord[] };
+/**
+ * A one-time code the owner hands to their agent so the agent can register
+ * itself. Without it, knowing an account id would be enough to attach agents
+ * to someone else's account.
+ */
+export type PairingCode = {
+  code: string;
+  accountId: string;
+  createdAt: string;
+  expiresAt: number;
+  usedAt?: string;
+};
+
+type Db = { accounts: Account[]; agents: AgentRecord[]; pairings?: PairingCode[] };
 
 const DATA_DIR = join(process.cwd(), "data");
 const FILE = "accounts.json";
@@ -119,6 +132,35 @@ export function bindPayoutAddress(accountId: string, address: string): Account |
 export function listAgents(accountId: string): AgentRecord[] {
   return load().agents.filter((a) => a.accountId === accountId && !a.revokedAt);
 }
+
+/* ---------- pairing: the owner's invitation for an agent to register ---------- */
+
+/** Issued from an authenticated owner session; valid for 15 minutes, single use. */
+export function issuePairingCode(accountId: string): PairingCode {
+  const db = load();
+  const pairing: PairingCode = {
+    // Short and readable — it is meant to be pasted into a prompt.
+    code: `pair_${randomBytes(6).toString("hex")}`,
+    accountId,
+    createdAt: new Date().toISOString(),
+    expiresAt: Date.now() + 15 * 60 * 1000,
+  };
+  db.pairings = [...(db.pairings ?? []).filter((p) => p.expiresAt > Date.now() && !p.usedAt), pairing];
+  save(db);
+  return pairing;
+}
+
+/** Redeems a code and returns the account it grants access to register against. */
+export function redeemPairingCode(code: string): string | undefined {
+  const db = load();
+  const pairing = (db.pairings ?? []).find((p) => p.code === code && !p.usedAt && p.expiresAt > Date.now());
+  if (!pairing) return undefined;
+  pairing.usedAt = new Date().toISOString();
+  save(db);
+  return pairing.accountId;
+}
+
+/* ---------- agent keys ---------- */
 
 /** Returns the plaintext key exactly once; only its hash is persisted. */
 export function issueAgentKey(accountId: string, name: string): { agent: AgentRecord; key: string } {
