@@ -37,6 +37,27 @@ body {
 
 .grid-2 { grid-template-columns: 1fr 1fr; }
 
+/* Agent loop — model proposes, policy disposes */
+.goalbox { width: 100%; border: 1px solid var(--line); padding: 12px 14px; font-family: inherit;
+  font-size: 14px; line-height: 1.5; resize: vertical; margin-bottom: 20px; color: var(--ink); }
+.goalbox:focus { outline: none; border-color: var(--ink); }
+.goalbox:disabled { background: #fafafa; color: #666; }
+.runpanel .steps { display: block; }
+.runpanel .step { display: flex; gap: 14px; padding: 14px 0; border: none;
+  border-bottom: 1px solid var(--line); align-items: flex-start; }
+.stepn { font-family: var(--mono); font-size: 12px; color: var(--muted); width: 18px; flex-shrink: 0; padding-top: 2px; }
+.stepbody { flex: 1; min-width: 0; }
+.stepline { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+.stepaction { font-family: var(--mono); font-size: 14px; font-weight: 600; }
+.stepbadge { font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: nowrap; }
+.stepbadge.ok { color: var(--good); }
+.stepbadge.blocked { color: var(--bad); }
+.stepreason { font-size: 13px; color: #444; line-height: 1.5; margin-top: 5px; }
+.steprefusal { font-size: 12px; color: var(--bad); font-family: var(--mono); margin-top: 5px; }
+.stepescalate { font-size: 12px; color: var(--ink); margin-top: 6px; border-left: 2px solid var(--ink); padding-left: 10px; }
+.loopsummary { margin-top: 18px; border-top: 2px solid var(--ink); padding-top: 16px; }
+.loopsummary p { font-size: 14px; line-height: 1.6; margin-top: 8px; }
+
 /* Market — the open service registry */
 .market table.listings { width: 100%; border-collapse: collapse; margin-bottom: 6px; }
 .market td { padding: 9px 0; border-bottom: 1px solid var(--line); vertical-align: top; }

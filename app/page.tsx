@@ -5,6 +5,8 @@ import { PolicyCard, AgentActions, SweepButton, DepositButton, FxCard } from "./
 import { RunPanel } from "./runpanel";
 import { readRun } from "@/lib/runbook";
 import { MarketCard } from "./market";
+import { AgentLoopPanel } from "./agentloop";
+import { readLoop } from "@/lib/agentLoop";
 import { getListings } from "@/lib/registry";
 
 export const dynamic = "force-dynamic";
@@ -51,6 +53,8 @@ export default async function Console() {
         <AgentActions />
         <FxCard eurc={fmt(treasury.eurc, 4)} usdcFloat={fmt(treasury.usdc)} />
       </div>
+
+      <AgentLoopPanel initial={readLoop()} />
 
       <div className="grid grid-2">
         <MarketCard listings={listings} />
