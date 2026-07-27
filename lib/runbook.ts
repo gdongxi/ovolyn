@@ -5,6 +5,7 @@ import { evaluateAutoSweep, sweepToUsyc } from "./treasury";
 import { agentSpend } from "./agent";
 import { walletUsdc } from "./arc";
 import { getPolicy } from "./store";
+import { marketView } from "./registry";
 
 /**
  * "Run the bank" — the four money flows executed as one narratable sequence:
@@ -38,7 +39,22 @@ const RUN_FILE = "run.json";
 const DATA_DIR = join(process.cwd(), "data");
 
 const DEPOSIT_USDC = 2;
-const STALL = process.env.STALL_URL ?? "http://localhost:4021";
+
+/**
+ * Purchase targets come from the registry, not from hardcoded URLs: the
+ * cheapest listing the policy would allow, and the priciest one it would not.
+ */
+function pickTargets(perTxLimitUsdc: number): { affordable?: { url: string; label: string }; overLimit?: { url: string; label: string } } {
+  const listings = marketView();
+  const within = listings.filter((l) => l.priceUsdc <= perTxLimitUsdc);
+  const beyond = listings.filter((l) => l.priceUsdc > perTxLimitUsdc);
+  const cheapest = within[0];
+  const priciest = beyond[beyond.length - 1];
+  return {
+    affordable: cheapest && { url: cheapest.endpoint, label: `${cheapest.name} ($${cheapest.priceUsdc})` },
+    overLimit: priciest && { url: priciest.endpoint, label: `${priciest.name} ($${priciest.priceUsdc})` },
+  };
+}
 
 function blank(): Stage[] {
   return [
@@ -113,30 +129,39 @@ async function execute(run: Run): Promise<void> {
     });
   }
 
-  // 3 · the agent spends, within policy
+  // 3 · the agent spends, within policy — target chosen from the registry
+  const targets = pickTargets(policy.perTxLimitUsdc);
   update(run, "spend", { state: "running", startedAt: new Date().toISOString() });
-  const spend = await agentSpend(`${STALL}/oracle`, "market insight");
-  update(run, "spend", {
-    state: spend.outcome === "SETTLED" ? "done" : "failed",
-    detail:
-      spend.outcome === "SETTLED"
-        ? `paid $${spend.priceUsdc} to an independent merchant · settled through Gateway`
-        : (spend.reason ?? "spend failed"),
-    endedAt: new Date().toISOString(),
-  });
+  if (!targets.affordable) {
+    update(run, "spend", { state: "skipped", detail: "no listing within the per-tx limit", endedAt: new Date().toISOString() });
+  } else {
+    const spend = await agentSpend(targets.affordable.url, targets.affordable.label);
+    update(run, "spend", {
+      state: spend.outcome === "SETTLED" ? "done" : "failed",
+      detail:
+        spend.outcome === "SETTLED"
+          ? `bought ${targets.affordable.label} from an independent merchant · settled through Gateway`
+          : (spend.reason ?? "spend failed"),
+      endedAt: new Date().toISOString(),
+    });
+  }
 
   // 4 · the policy stops it when it steps out of bounds
   update(run, "block", { state: "running", startedAt: new Date().toISOString() });
-  const blocked = await agentSpend(`${STALL}/deep-analysis`, "deep analysis");
-  update(run, "block", {
-    // A refusal is the intended outcome here — the gate did its job.
-    state: blocked.outcome === "BLOCKED" ? "done" : "failed",
-    detail:
-      blocked.outcome === "BLOCKED"
-        ? `refused — ${blocked.reason}`
-        : `expected a refusal, got ${blocked.outcome}`,
-    endedAt: new Date().toISOString(),
-  });
+  if (!targets.overLimit) {
+    update(run, "block", { state: "skipped", detail: "no listing above the per-tx limit", endedAt: new Date().toISOString() });
+  } else {
+    const blocked = await agentSpend(targets.overLimit.url, targets.overLimit.label);
+    update(run, "block", {
+      // A refusal is the intended outcome here — the gate did its job.
+      state: blocked.outcome === "BLOCKED" ? "done" : "failed",
+      detail:
+        blocked.outcome === "BLOCKED"
+          ? `${targets.overLimit.label} refused — ${blocked.reason}`
+          : `expected a refusal, got ${blocked.outcome}`,
+      endedAt: new Date().toISOString(),
+    });
+  }
 
   run.state = "done";
   run.endedAt = new Date().toISOString();

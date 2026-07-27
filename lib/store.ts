@@ -25,7 +25,9 @@ export type LedgerEntry = {
 const DEFAULT_POLICY: Policy = {
   perTxLimitUsdc: 0.01,
   dailyBudgetUsdc: 0.1,
-  allowlist: ["http://localhost:4021"],
+  // Merchants the operator permits; the registry decides who exists, the
+  // operator decides who their agent may trade with.
+  allowlist: ["http://localhost:4021", "http://localhost:4022", "http://localhost:4023", "http://localhost:4024"],
   idleThresholdUsdc: 10,
 };
 

@@ -4,6 +4,8 @@ import { getPolicy, getLedger, spentTodayUsdc } from "@/lib/store";
 import { PolicyCard, AgentActions, SweepButton, DepositButton, FxCard } from "./controls";
 import { RunPanel } from "./runpanel";
 import { readRun } from "@/lib/runbook";
+import { MarketCard } from "./market";
+import { getListings } from "@/lib/registry";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +19,7 @@ export default async function Console() {
   const [wallet, gateway, treasury] = await Promise.all([walletUsdc(), gatewayUsdc(), treasuryBalances()]);
   const policy = getPolicy();
   const ledger = getLedger();
+  const listings = getListings();
   const spent = spentTodayUsdc();
 
   return (
@@ -47,6 +50,11 @@ export default async function Console() {
         <PolicyCard policy={policy} />
         <AgentActions />
         <FxCard eurc={fmt(treasury.eurc, 4)} usdcFloat={fmt(treasury.usdc)} />
+      </div>
+
+      <div className="grid grid-2">
+        <MarketCard listings={listings} />
+        <div />
       </div>
 
       <div className="section-title">Activity — live on Arc Testnet</div>

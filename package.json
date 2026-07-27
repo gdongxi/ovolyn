@@ -11,7 +11,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "stall": "node services/demo-stall/server.ts"
+    "stall": "node services/demo-stall/server.ts",
+    "stalls": "node services/stalls/server.ts"
   },
   "repository": {
     "type": "git",
