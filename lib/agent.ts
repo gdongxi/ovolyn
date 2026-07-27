@@ -35,9 +35,25 @@ async function estimatePriceUsdc(url: string): Promise<number> {
   return Number(m[1]);
 }
 
-/** The policy gate + real x402 payment. Every path leaves a ledger entry. */
-export async function agentSpend(url: string, label: string): Promise<SpendResult> {
-  const policy = getPolicy();
+/**
+ * The policy gate + real x402 payment. Every path leaves a ledger entry.
+ *
+ * `caps` narrows the account policy for a particular agent: an agent may be
+ * held to a tighter limit than the account, never a looser one.
+ */
+export async function agentSpend(
+  url: string,
+  label: string,
+  caps?: { perTxLimitUsdc?: number },
+): Promise<SpendResult> {
+  const accountPolicy = getPolicy();
+  const policy = {
+    ...accountPolicy,
+    perTxLimitUsdc:
+      caps?.perTxLimitUsdc !== undefined
+        ? Math.min(accountPolicy.perTxLimitUsdc, caps.perTxLimitUsdc)
+        : accountPolicy.perTxLimitUsdc,
+  };
   const detail = `${label} · ${url}`;
 
   if (!policy.allowlist.some((prefix) => url.startsWith(prefix))) {

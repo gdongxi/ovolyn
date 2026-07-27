@@ -12,3 +12,5 @@ dist/
 .vercel
 supabase/.temp/
 data/
+data/accounts.json
+data/challenges.json
