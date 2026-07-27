@@ -23,6 +23,9 @@ body {
 .brand { font-size: 16px; font-weight: 700; letter-spacing: 0.32em; display: flex; align-items: center; gap: 12px; }
 .brand .mark { width: 26px; height: 26px; display: block; }
 .net { font-size: 12px; color: var(--muted); letter-spacing: 0.08em; font-family: var(--mono); }
+.topright { display: flex; align-items: center; gap: 22px; }
+.navlink { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink);
+  text-decoration: none; border-bottom: 1px solid var(--ink); padding-bottom: 2px; }
 
 .main { padding: 36px 40px; max-width: 1180px; margin: 0 auto; }
 
@@ -36,6 +39,41 @@ body {
 .section-title { font-size: 13px; letter-spacing: 0.22em; font-weight: 700; color: var(--muted); text-transform: uppercase; margin: 36px 0 16px; }
 
 .grid-2 { grid-template-columns: 1fr 1fr; }
+
+/* Sign-in — the human door */
+.signin { max-width: 780px; margin: 40px auto; }
+.signin h1 { font-size: 34px; letter-spacing: -0.01em; margin-bottom: 14px; }
+.lede { font-size: 17px; line-height: 1.6; color: #444; margin-bottom: 34px; }
+.footnote { font-size: 13px; color: var(--muted); margin-top: 26px; line-height: 1.6; }
+.doors { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+.door { border: 2px solid var(--ink); padding: 24px; }
+.doorhint { font-size: 13px; color: #555; line-height: 1.5; margin: 10px 0 16px; min-height: 58px; }
+.field { width: 100%; border: 1px solid var(--line); padding: 10px 12px; font-size: 14px;
+  font-family: var(--mono); margin-bottom: 10px; color: var(--ink); }
+.field:focus { outline: none; border-color: var(--ink); }
+.field.inline { width: 150px; margin-bottom: 0; }
+.devcode { margin-top: 10px; color: var(--good); }
+.doorerror { grid-column: 1 / -1; border-left: 3px solid var(--bad); padding: 10px 14px;
+  font-size: 13px; color: var(--bad); }
+
+/* Account — agents and their allowances */
+.acct-head { display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 24px; margin-bottom: 30px; }
+.acct-id { font-family: var(--mono); font-size: 17px; margin: 6px 0 4px; word-break: break-all; }
+.acct-actions { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+.acct-actions .btn { width: auto; margin-top: 0; padding: 10px 20px; }
+.agentrow { display: flex; justify-content: space-between; align-items: center; gap: 24px;
+  padding: 16px 0; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.agentrow.dormant { opacity: 0.75; }
+.agentname { font-size: 15px; font-weight: 700; }
+.agentname .badge.on { border-color: var(--good); color: var(--good); }
+.agentgrant { display: flex; gap: 10px; align-items: center; }
+.agentgrant label { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+.agentgrant input { width: 62px; border: none; border-bottom: 2px solid var(--ink);
+  font-family: var(--mono); font-size: 14px; text-align: right; outline: none; margin-left: 4px; }
+.agentgrant .btn { width: auto; margin-top: 0; padding: 9px 18px; font-size: 13px; }
+.keyreveal { border: 2px solid var(--good); padding: 18px 20px; margin-bottom: 22px; }
+.keyreveal code { display: block; font-size: 14px; margin: 10px 0; word-break: break-all; }
 
 /* Agent loop — model proposes, policy disposes */
 .goalbox { width: 100%; border: 1px solid var(--line); padding: 12px 14px; font-family: inherit;
