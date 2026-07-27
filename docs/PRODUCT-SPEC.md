@@ -4,6 +4,27 @@
 > onboarding, permissions, and how the open service market works. Status tags:
 > `[live]` verified on Arc Testnet today · `[build]` hackathon scope · `[roadmap]` post-hackathon.
 
+## 0. The founding rule: authority is human-created, permission is machine-delegated
+
+Everything below follows from one line:
+
+> **A human opens the account. The account issues the agent's credential. The
+> agent spends inside limits the human set.**
+
+Registration is therefore split into three separate flows, and only the first
+one roots authority:
+
+| Flow | Who performs it | Gate | Why it is drawn here |
+|---|---|---|---|
+| **Account** (owner) | **Human only — never an agent** | Wallet signature (SIWE) or email OTP | The account holds funds and defines policy. Its authority must root in something only the human possesses; if an agent could open an account, whoever controls that agent's prompt controls the money, and no non-repudiable human consent sits at the root of the chain. |
+| **Agent identity** | An agent may register itself | An Agent Key issued by an already-authenticated account | This is a *delegated* credential with hard-capped powers, so self-service is safe — the authority still traces back to the human who opened the account. A newly registered agent starts with **zero spending allowance**: it can authenticate and read, but cannot move a cent until the owner assigns it a budget and policy. |
+| **Service listing** (ASP) | Human signature; an agent may prepare the submission | Signature from the payout address | The signature *is* the proof of ownership — an agent without the key cannot produce one. |
+
+The convenience of conversational onboarding stops exactly where funds begin.
+An agent can install the skills pack, register itself, read balances and
+request spending; it cannot open the account, fund it, raise its own limits,
+or withdraw.
+
 ## 1. Three actors, three doors
 
 | Actor | Auth | Why this door |
@@ -18,11 +39,12 @@ integration goes through skills and keys (§4), not browser redirects.
 
 ## 2. Operator: onboarding & permissions
 
-Registration auto-provisions everything — account, managed spending wallet,
-conservative default policy (per-tx $0.01 / daily $0.10 / verified-tier
-merchants only), and a testnet faucet drip. Deposit via direct transfer or CCTP
-from any chain `[live]`. Idle balances sweep into tokenized treasury yield
-(USYC) `[live]`.
+The operator registers in person — wallet signature or email OTP, never
+delegated to an agent (§0). Registration then auto-provisions the rest:
+managed spending wallet, conservative default policy (per-tx $0.01 / daily
+$0.10 / verified-tier merchants only), and a testnet faucet drip. Deposit via
+direct transfer or CCTP from any chain `[live]`. Idle balances sweep into
+tokenized treasury yield (USYC) `[live]`.
 
 **One account, three kinds of keys:**
 
@@ -83,10 +105,16 @@ npx skills add ovolyn/skills -g
 ```
 
 installs Ovolyn know-how into the user's own agent (Claude Code, Codex, or any
-skills-compatible runtime). From there, onboarding is conversational — the
-tutorial is a set of copy-paste prompts like *"Open my Ovolyn account and show
-my remaining budget"* — the agent performs its own setup and requests an Agent
-Key through the operator's confirmation. Zero forms, zero manual key transport.
+skills-compatible runtime). From there the agent handles its own onboarding
+conversationally — *"Register yourself against my Ovolyn account and show me
+what you're allowed to spend"* — registering, obtaining its Agent Key and
+reading its limits without forms or manual key transport.
+
+What it cannot do is open the account: that is the owner's own act, performed
+once at the website with a wallet signature or an email OTP (§0). The agent's
+registration attaches to an account that already exists, and the agent it
+creates starts at a zero allowance until the owner funds it and sets a policy.
+The convenience stops where the funds begin.
 
 **Developer path — raw HTTP API** `[build]`: three endpoints with
 `Authorization: Bearer <agent-key>`:
