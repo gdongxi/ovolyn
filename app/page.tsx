@@ -1,97 +1,103 @@
-import { AGENT_WALLET, walletUsdc, gatewayUsdc } from "@/lib/arc";
-import { treasuryBalances } from "@/lib/treasury";
-import { getPolicy, getLedger, spentTodayUsdc } from "@/lib/store";
-import { PolicyCard, AgentActions, SweepButton, DepositButton, FxCard } from "./controls";
-import { RunPanel } from "./runpanel";
-import { readRun } from "@/lib/runbook";
-import { MarketCard } from "./market";
-import { AgentLoopPanel } from "./agentloop";
-import { readLoop } from "@/lib/agentLoop";
-import { getListings } from "@/lib/registry";
+import Link from "next/link";
+import { getStats } from "@/lib/stats";
+import { Guilloche, ReededRule, BalanceLine } from "./engraving";
 
 export const dynamic = "force-dynamic";
 
-/** Balances arrive as strings and become "—" when an upstream read fails. */
-function fmt(value: string, digits = 2): string {
-  const n = Number(value);
-  return Number.isFinite(n) ? n.toFixed(digits) : "—";
-}
+const VERBS = [
+  { name: "Deposit", line: "USDC arrives from any chain.", tool: "CCTP v2" },
+  { name: "Earn", line: "Idle balances sweep into treasury yield.", tool: "USYC" },
+  { name: "Govern", line: "Limits the agent cannot raise itself.", tool: "Policy engine" },
+  { name: "Spend", line: "Machine-speed payments, inside policy.", tool: "x402 · Gateway" },
+];
 
-export default async function Console() {
-  const [wallet, gateway, treasury] = await Promise.all([walletUsdc(), gatewayUsdc(), treasuryBalances()]);
-  const policy = getPolicy();
-  const ledger = getLedger();
-  const listings = getListings();
-  const spent = spentTodayUsdc();
+const money = (n: number, digits = 2) =>
+  n.toLocaleString("en-US", { minimumFractionDigits: digits, maximumFractionDigits: digits });
+
+export default async function Landing() {
+  const stats = await getStats();
 
   return (
-    <>
-      <RunPanel initial={readRun()} />
-
-      <div className="grid">
-        <div className="card">
-          <div className="label">Wallet · USDC</div>
-          <div className="value">{fmt(wallet)}</div>
-          <div className="sub">{AGENT_WALLET}</div>
-          <DepositButton />
+    <div className="landing">
+      <section className="hero">
+        <Guilloche className="hero-plate" height={560} />
+        <div className="hero-inner">
+          <h1 className="display">
+            The autonomous bank
+            <br />
+            for AI agents.
+          </h1>
+          <p className="hero-sub">Deposit. Earn. Govern. Spend. — on Arc.</p>
+          <div className="hero-actions">
+            <Link className="btn" href="/console">
+              Open the console
+            </Link>
+            <Link className="btn btn-outline" href="/ledger">
+              Verify every figure
+            </Link>
+          </div>
         </div>
-        <div className="card">
-          <div className="label">Gateway · Spendable</div>
-          <div className="value">{fmt(gateway, 4)}</div>
-          <div className="sub">x402 nanopayments · domain 26 · spent today ${spent.toFixed(6)}</div>
+      </section>
+
+      <section className="stat-band">
+        <Guilloche className="hero-plate" height={220} stroke="#f3f2f2" opacity={0.11} />
+        <div className="stat-inner">
+          <div className="stat">
+            <div className="stat-v">
+              {money(stats.custodyUsdc)}
+              <span className="brass"> USDC</span>
+            </div>
+            <div className="stat-l">under custody</div>
+          </div>
+          <div className="stat">
+            <div className="stat-v">
+              {money(stats.earningUsyc, 4)}
+              <span className="brass"> USYC</span>
+            </div>
+            <div className="stat-l">earning yield</div>
+          </div>
+          <div className="stat">
+            <div className="stat-v">{stats.paymentsSettled}</div>
+            <div className="stat-l">payments settled</div>
+          </div>
+          <div className="stat">
+            <div className="stat-v">{stats.blockedAttempts}</div>
+            <div className="stat-l">spends refused by policy</div>
+          </div>
+          <div className="stat">
+            <div className="stat-v">{stats.servicesListed}</div>
+            <div className="stat-l">services listed</div>
+          </div>
         </div>
-        <div className="card">
-          <div className="label">USYC · Earning</div>
-          <div className="value">{fmt(treasury.usyc, 4)}</div>
-          <div className="sub">yield sleeve · Teller {`0x9fdF…105A`} · treasury float {fmt(treasury.usdc)} USDC</div>
-          <SweepButton />
+      </section>
+
+      <section className="verbs-band">
+        {VERBS.map((v) => (
+          <div className="verb-card" key={v.name}>
+            <ReededRule className="reed" width={240} />
+            <h2 className="display verb-name">{v.name}</h2>
+            <p className="verb-line">{v.line}</p>
+            <div className="verb-tool">{v.tool}</div>
+          </div>
+        ))}
+      </section>
+
+      <section className="proof-band">
+        <div className="proof-copy">
+          <h2 className="display">Every figure above is on-chain.</h2>
+          <p>
+            Live on Arc Testnet. The balance line is drawn from the same ledger the console shows,
+            and each entry links to the transaction that produced it.
+          </p>
+          <Link className="navlink" href="/market">
+            See the open service registry →
+          </Link>
         </div>
-      </div>
-
-      <div className="grid">
-        <PolicyCard policy={policy} />
-        <AgentActions listings={listings} />
-        <FxCard eurc={fmt(treasury.eurc, 4)} usdcFloat={fmt(treasury.usdc)} />
-      </div>
-
-      <AgentLoopPanel initial={readLoop()} />
-
-      <div className="grid grid-2">
-        <MarketCard listings={listings} />
-        <div />
-      </div>
-
-      <div className="section-title">Activity — live on Arc Testnet</div>
-      <table className="ledger">
-        <thead>
-          <tr><th>Time (UTC)</th><th>Type</th><th>Detail</th><th>Amount</th><th>Status</th></tr>
-        </thead>
-        <tbody>
-          {ledger.length === 0 && (
-            <tr>
-              <td colSpan={5} className="empty">
-                No activity yet — every row here is written by a real transaction executed through this console.
-              </td>
-            </tr>
-          )}
-          {ledger.map((e, i) => (
-            <tr key={i}>
-              <td>{e.ts.slice(0, 16).replace("T", " ")}</td>
-              <td>{e.type}</td>
-              <td>
-                {e.detail}{e.reason ? ` — ${e.reason}` : ""}
-                {e.txHash && (
-                  <a className="tx" href={`https://testnet.arcscan.app/tx/${e.txHash}`} target="_blank" rel="noreferrer">
-                    ↗ {e.txHash.slice(0, 10)}…
-                  </a>
-                )}
-              </td>
-              <td>{e.amount}</td>
-              <td className={e.status === "BLOCKED" ? "blocked" : e.status === "FAILED" ? "blocked" : "ok"}>{e.status}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </>
+        <div className="proof-chart">
+          <BalanceLine series={stats.balanceSeries} />
+          <div className="chart-cap">Capital under custody · deposits in, payments out</div>
+        </div>
+      </section>
+    </div>
   );
 }

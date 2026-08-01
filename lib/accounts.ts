@@ -133,6 +133,11 @@ export function listAgents(accountId: string): AgentRecord[] {
   return load().agents.filter((a) => a.accountId === accountId && !a.revokedAt);
 }
 
+/** Live agents across every account — for the public stats line. */
+export function countAgents(): number {
+  return load().agents.filter((a) => !a.revokedAt).length;
+}
+
 /* ---------- pairing: the owner's invitation for an agent to register ---------- */
 
 /** Issued from an authenticated owner session; valid for 15 minutes, single use. */
