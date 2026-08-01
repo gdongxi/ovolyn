@@ -4,7 +4,6 @@ import { getAccount, listAgents } from "@/lib/accounts";
 import { getPolicy } from "@/lib/store";
 import { readLoop } from "@/lib/agentLoop";
 import { PageHead } from "@/app/pagehead";
-import { ReededRule } from "@/app/engraving";
 import { PolicyCard } from "@/app/controls";
 import { AgentLoopPanel } from "@/app/agentloop";
 import { AgentManager, SignOut } from "@/app/account/manage";
@@ -16,27 +15,33 @@ export const dynamic = "force-dynamic";
  * page is for: the chain of authority that makes an autonomous spender safe.
  */
 const CHAIN = [
-  { n: "1", who: "You open the account", how: "Wallet signature or email", note: "Never an agent — this is the root of the chain." },
-  { n: "2", who: "The agent registers itself", how: "npx ovolyn connect <code>", note: "It receives its own key. You never see it." },
-  { n: "3", who: "You set the limit", how: "Per-transaction and daily", note: "Until you do, it can read but cannot spend." },
+  {
+    n: "1",
+    who: "You open the account",
+    how: "Wallet signature or email",
+    command: false,
+    note: "Never an agent — this is the root of the chain.",
+  },
+  {
+    n: "2",
+    who: "The agent registers itself",
+    how: "npx ovolyn connect <code>",
+    command: true,
+    note: "It receives its own key. You never see it.",
+  },
+  {
+    n: "3",
+    who: "You set the limit",
+    how: "Per-transaction and daily",
+    command: false,
+    note: "Until you do, it can read but cannot spend.",
+  },
 ];
 
 function Locked() {
   return (
     <>
-      <PageHead title="Agents" lede="The only page that asks you to sign in." />
-
-      <div className="chain">
-        {CHAIN.map((s) => (
-          <div className="chain-step" key={s.n}>
-            <ReededRule className="reed" width={200} />
-            <div className="chain-n">{s.n}</div>
-            <h2 className="display">{s.who}</h2>
-            <div className="chain-how">{s.how}</div>
-            <p>{s.note}</p>
-          </div>
-        ))}
-      </div>
+      <PageHead title="Agents" />
 
       <div className="locked">
         <p>
@@ -47,6 +52,19 @@ function Locked() {
           Open or resume your account
         </Link>
       </div>
+
+      <ol className="chain">
+        {CHAIN.map((s) => (
+          <li className="chain-step" key={s.n}>
+            <div className="chain-n">{s.n}</div>
+            <div className="chain-body">
+              <h2 className="display">{s.who}</h2>
+              {s.command ? <code className="chain-cmd">{s.how}</code> : <div className="chain-how">{s.how}</div>}
+              <p>{s.note}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
     </>
   );
 }
