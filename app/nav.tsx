@@ -25,7 +25,7 @@ export function Nav() {
           </Link>
         ))}
       </nav>
-      <span className="net">ARC TESTNET · eip155:5042002</span>
+      <span className="net" title="Arc Testnet · eip155:5042002">TESTNET</span>
     </div>
   );
 }
