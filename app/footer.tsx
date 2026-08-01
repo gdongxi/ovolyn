@@ -19,9 +19,10 @@ export function Footer() {
           <div>
             <div className="colophon-h">Bank</div>
             <a href="/console">Console</a>
+            <a href="/treasury">Treasury</a>
             <a href="/market">Market</a>
             <a href="/ledger">Ledger</a>
-            <a href="/account">Account</a>
+            <a href="/agents">Agents</a>
           </div>
           <div>
             <div className="colophon-h">Build</div>

@@ -44,7 +44,7 @@ export function Guilloche({
   width = 1440,
   height = 520,
   stroke = "#201f1d",
-  opacity = 0.14,
+  opacity = 0.2,
   className,
 }: {
   width?: number;

@@ -1,13 +1,10 @@
+import Link from "next/link";
 import { AGENT_WALLET, walletUsdc, gatewayUsdc } from "@/lib/arc";
 import { treasuryBalances } from "@/lib/treasury";
-import { getPolicy, getLedger, spentTodayUsdc } from "@/lib/store";
-import { PolicyCard, AgentActions, SweepButton, DepositButton, FxCard } from "@/app/controls";
-import { RunPanel } from "@/app/runpanel";
+import { getLedger, spentTodayUsdc } from "@/lib/store";
 import { readRun } from "@/lib/runbook";
-import { MarketCard } from "@/app/market";
-import { AgentLoopPanel } from "@/app/agentloop";
-import { readLoop } from "@/lib/agentLoop";
-import { getListings } from "@/lib/registry";
+import { RunPanel } from "@/app/runpanel";
+import { PageHead } from "@/app/pagehead";
 
 export const dynamic = "force-dynamic";
 
@@ -18,80 +15,81 @@ function fmt(value: string, digits = 2): string {
 }
 
 export default async function Console() {
-  const [wallet, gateway, treasury] = await Promise.all([walletUsdc(), gatewayUsdc(), treasuryBalances()]);
-  const policy = getPolicy();
-  const ledger = getLedger();
-  const listings = getListings();
+  const [wallet, gateway, treasury] = await Promise.all([
+    walletUsdc(),
+    gatewayUsdc(),
+    treasuryBalances(),
+  ]);
+  const recent = getLedger().slice(0, 6);
   const spent = spentTodayUsdc();
 
   return (
     <>
+      <PageHead
+        title="Console"
+        lede="The position at a glance — and the whole bank in one sequence."
+      />
+
       <RunPanel initial={readRun()} />
 
       <div className="grid">
         <div className="card">
-          <div className="label">Wallet · USDC</div>
+          <div className="label">Spending wallet</div>
           <div className="value">{fmt(wallet)}</div>
-          <div className="sub">{AGENT_WALLET}</div>
-          <DepositButton />
+          <div className="sub">USDC · {AGENT_WALLET.slice(0, 16)}…</div>
         </div>
         <div className="card">
-          <div className="label">Gateway · Spendable</div>
+          <div className="label">Gateway</div>
           <div className="value">{fmt(gateway, 4)}</div>
-          <div className="sub">x402 nanopayments · domain 26 · spent today ${spent.toFixed(6)}</div>
+          <div className="sub">reserved for x402 · spent today ${spent.toFixed(6)}</div>
         </div>
         <div className="card">
-          <div className="label">USYC · Earning</div>
+          <div className="label">Yield sleeve</div>
           <div className="value">{fmt(treasury.usyc, 4)}</div>
-          <div className="sub">yield sleeve · Teller {`0x9fdF…105A`} · treasury float {fmt(treasury.usdc)} USDC</div>
-          <SweepButton />
+          <div className="sub">
+            USYC · float {fmt(treasury.usdc)} USDC · EURC {fmt(treasury.eurc, 2)}
+          </div>
         </div>
       </div>
 
-      <div className="grid">
-        <PolicyCard policy={policy} />
-        <AgentActions listings={listings} />
-        <FxCard eurc={fmt(treasury.eurc, 4)} usdcFloat={fmt(treasury.usdc)} />
-      </div>
-
-      <AgentLoopPanel initial={readLoop()} />
-
-      <div className="grid grid-2">
-        <MarketCard listings={listings} />
-        <div />
-      </div>
-
-      <div className="section-title">Activity — live on Arc Testnet</div>
+      <div className="section-title">Latest activity</div>
       <table className="ledger">
         <thead>
-          <tr><th>Time (UTC)</th><th>Type</th><th>Detail</th><th>Amount</th><th>Status</th></tr>
+          <tr>
+            <th>Time (UTC)</th>
+            <th>Type</th>
+            <th>Detail</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
         </thead>
         <tbody>
-          {ledger.length === 0 && (
+          {recent.length === 0 && (
             <tr>
-              <td colSpan={5} className="empty">
-                No activity yet — every row here is written by a real transaction executed through this console.
+              <td colSpan={5} className="ledger-empty">
+                Nothing recorded yet. Run the sequence above.
               </td>
             </tr>
           )}
-          {ledger.map((e, i) => (
+          {recent.map((e, i) => (
             <tr key={i}>
               <td>{e.ts.slice(0, 16).replace("T", " ")}</td>
               <td>{e.type}</td>
               <td>
-                {e.detail}{e.reason ? ` — ${e.reason}` : ""}
-                {e.txHash && (
-                  <a className="tx" href={`https://testnet.arcscan.app/tx/${e.txHash}`} target="_blank" rel="noreferrer">
-                    ↗ {e.txHash.slice(0, 10)}…
-                  </a>
-                )}
+                {e.detail}
+                {e.reason ? ` — ${e.reason}` : ""}
               </td>
               <td>{e.amount}</td>
-              <td className={e.status === "BLOCKED" ? "blocked" : e.status === "FAILED" ? "blocked" : "ok"}>{e.status}</td>
+              <td className={e.status === "BLOCKED" || e.status === "FAILED" ? "blocked" : "ok"}>
+                {e.status}
+              </td>
             </tr>
           ))}
         </tbody>
       </table>
+      <Link className="linkish" href="/ledger">
+        Every entry, with filters and transaction links →
+      </Link>
     </>
   );
 }

@@ -106,6 +106,16 @@ export function addListing(input: Omit<Listing, "tier" | "probe" | "firstParty">
   return listing;
 }
 
+/** Stores a probe result against a listing. */
+export function recordProbe(id: string, result: ProbeResult): Listing | undefined {
+  const listings = getListings();
+  const listing = listings.find((l) => l.id === id);
+  if (!listing) return undefined;
+  listing.probe = result;
+  save(listings);
+  return listing;
+}
+
 /**
  * Tier-0 probe. Reads the 402 challenge without paying: a live endpoint must
  * refuse an unpaid request with a PAYMENT-REQUIRED header, and the amount it

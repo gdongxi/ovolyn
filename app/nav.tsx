@@ -5,9 +5,10 @@ import { usePathname } from "next/navigation";
 
 const PAGES = [
   { href: "/console", label: "Console" },
+  { href: "/treasury", label: "Treasury" },
   { href: "/market", label: "Market" },
   { href: "/ledger", label: "Ledger" },
-  { href: "/account", label: "Account" },
+  { href: "/agents", label: "Agents" },
 ];
 
 export function Nav() {
