@@ -7,6 +7,8 @@ services:
     environment:
       NODE_ENV: production
       STALL_PUBLIC_BASE: https://${OVOLYN_DOMAIN}/stall
+      # Accepted once interactively; the container has no TTY to ask again.
+      CIRCLE_ACCEPT_TERMS: "1"
     volumes:
       - data:/app/data
       - circle-session:/root/.circle-cli
