@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
+import { Nav } from "./nav";
+import { Footer } from "./footer";
 
 // Self-hosted at build time — the wordmark's face, used for display type.
 const display = Cormorant_Garamond({
@@ -25,14 +27,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <img src="/mark.svg" alt="" className="mark" />
             OVOLYN
           </a>
-          <div className="topright">
-            <a className="navlink" href="/console">Console</a>
-            <a className="navlink" href="/ledger">Ledger</a>
-            <a className="navlink" href="/account">Account</a>
-            <span className="net">ARC TESTNET · eip155:5042002</span>
-          </div>
+          <Nav />
         </header>
         <main className="main">{children}</main>
+        <Footer />
       </body>
     </html>
   );

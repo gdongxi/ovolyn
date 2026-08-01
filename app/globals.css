@@ -27,9 +27,12 @@ body {
 .brand { font-size: 16px; font-weight: 700; letter-spacing: 0.32em; display: flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; }
 .brand .mark { width: 26px; height: 26px; display: block; }
 .net { font-size: 12px; color: var(--muted); letter-spacing: 0.08em; font-family: var(--mono); }
-.topright { display: flex; align-items: center; gap: 22px; }
+.topright { display: flex; align-items: center; gap: 26px; }
+.mainnav { display: flex; gap: 20px; }
 .navlink { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink);
-  text-decoration: none; border-bottom: 1px solid var(--ink); padding-bottom: 2px; }
+  text-decoration: none; border-bottom: 1px solid transparent; padding-bottom: 2px; }
+.navlink:hover { border-bottom-color: var(--line); }
+.navlink.is-active { border-bottom-color: var(--brass); }
 
 .main { padding: 36px 40px; max-width: 1180px; margin: 0 auto; }
 
@@ -87,9 +90,29 @@ body {
 .chart-cap { font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase;
   color: var(--muted); margin-top: 10px; }
 
+/* Colophon — bookends the statistics band */
+.colophon { position: relative; overflow: hidden; background: var(--vault); color: #f3f2f2;
+  margin: 0 -40px -36px; padding: 58px 0 0; }
+.colophon-inner { position: relative; max-width: 1180px; margin: 0 auto; padding: 0 60px;
+  display: flex; gap: 70px; justify-content: space-between; }
+.colophon-brand { max-width: 320px; }
+.colophon-lockup { width: 190px; display: block; margin-bottom: 16px; }
+.colophon-brand p { font-size: 14px; color: #8f8a80; line-height: 1.6; }
+.colophon-cols { display: flex; gap: 62px; }
+.colophon-cols > div { display: flex; flex-direction: column; gap: 9px; }
+.colophon-h { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--brass); margin-bottom: 4px; }
+.colophon-cols a, .colophon-cols span { font-size: 13px; color: #cfcac1; text-decoration: none; }
+.colophon-cols a:hover { color: #fff; border-bottom: 1px solid var(--brass); }
+.colophon-cols span { color: #7d786f; font-family: var(--mono); font-size: 12px; }
+.colophon-rule { margin-top: 46px; border-top: 1px solid #3a3833; padding: 18px 0 22px; }
+.colophon-fine { font-size: 11px; color: #7d786f; letter-spacing: 0.06em; gap: 24px; }
+
 @media (max-width: 900px) {
   .verbs-band { grid-template-columns: 1fr 1fr; }
   .proof-band { grid-template-columns: 1fr; gap: 34px; }
+  .colophon-inner { flex-direction: column; gap: 34px; }
+  .colophon-cols { flex-wrap: wrap; gap: 34px; }
 }
 
 /* Sign-in — the human door */
