@@ -1,0 +1,26 @@
+{$OVOLYN_DOMAIN} {
+	encode zstd gzip
+
+	# The seed services, published so agents anywhere can buy from them —
+	# a registry of endpoints only this machine can reach is not a market.
+	handle_path /stall/gas-oracle* {
+		rewrite * /gas
+		reverse_proxy stalls:4021
+	}
+	handle_path /stall/usyc-nav* {
+		rewrite * /nav
+		reverse_proxy stalls:4022
+	}
+	handle_path /stall/treasury-signal* {
+		rewrite * /signal
+		reverse_proxy stalls:4023
+	}
+	handle_path /stall/deep-analysis* {
+		rewrite * /deep
+		reverse_proxy stalls:4024
+	}
+
+	handle {
+		reverse_proxy app:3000
+	}
+}

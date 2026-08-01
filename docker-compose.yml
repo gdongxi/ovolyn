@@ -1,0 +1,53 @@
+services:
+  # The bank. Shells out to the Circle CLI, so it needs the session volume.
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      NODE_ENV: production
+      STALL_PUBLIC_BASE: https://${OVOLYN_DOMAIN}/stall
+    volumes:
+      - data:/app/data
+      - circle-session:/root/.circle-cli
+    expose:
+      - "3000"
+
+  # The seed services. Their own container so a crash cannot take the bank
+  # down with it, and their own copy of the CLI session is not needed —
+  # they only receive payments, never send them.
+  stalls:
+    build: .
+    restart: unless-stopped
+    command: ["npm", "run", "stalls"]
+    environment:
+      NODE_ENV: production
+      STALL_PUBLIC_BASE: https://${OVOLYN_DOMAIN}/stall
+    expose:
+      - "4021"
+      - "4022"
+      - "4023"
+      - "4024"
+
+  # Terminates TLS and gets its own certificate. Nothing else is exposed.
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      OVOLYN_DOMAIN: ${OVOLYN_DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - app
+      - stalls
+
+volumes:
+  data:
+  circle-session:
+  caddy-data:
+  caddy-config:

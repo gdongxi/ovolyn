@@ -1,5 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { defaultAllowlist } from "./stalls";
 
 const DATA_DIR = join(process.cwd(), "data");
 
@@ -27,7 +28,7 @@ const DEFAULT_POLICY: Policy = {
   dailyBudgetUsdc: 0.1,
   // Merchants the operator permits; the registry decides who exists, the
   // operator decides who their agent may trade with.
-  allowlist: ["http://localhost:4021", "http://localhost:4022", "http://localhost:4023", "http://localhost:4024"],
+  allowlist: defaultAllowlist(),
   idleThresholdUsdc: 10,
 };
 

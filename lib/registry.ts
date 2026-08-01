@@ -1,5 +1,6 @@
 import { mkdirSync, readFileSync, writeFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { SEED_STALLS, stallEndpoint } from "./stalls";
 
 /**
  * The open service registry.
@@ -50,32 +51,21 @@ function path(): string {
   return join(DATA_DIR, FILE);
 }
 
-/**
- * Seed listings mirror services/stalls/catalog.ts — kept as data here so the
- * Next build and the standalone stall process stay independent of each other.
- */
+/** Seed listings describe the first-party stalls; they are marked as such. */
 function seed(): Listing[] {
-  const s = (
-    id: string, name: string, provider: string, port: number, path: string,
-    priceUsdc: number, category: string, description: string, payoutAddress: string,
-  ): Listing => ({
-    id, name, provider, endpoint: `http://localhost:${port}${path}`, method: "GET",
-    priceUsdc, category, description, payoutAddress, firstParty: true, tier: 0,
-  });
-  return [
-    s("gas-oracle", "Arc Gas Oracle", "Ovolyn Labs", 4021, "/gas", 0.001, "CHAIN_DATA",
-      "Current Arc Testnet base fee and block height, denominated in USDC.",
-      "0x705197b03726d10d220e06f2c097ff34727eb8d3"),
-    s("usyc-nav", "USYC NAV Feed", "Meridian Data", 4022, "/nav", 0.004, "FINANCIAL_ANALYSIS",
-      "Live USYC net asset value and implied yield, read from the Teller contract.",
-      "0xf034096ea62322db6e15e9903cf9762c0e0a54f6"),
-    s("treasury-signal", "Treasury Signal", "Halden Research", 4023, "/signal", 0.008, "FINANCIAL_ANALYSIS",
-      "Allocation guidance for a stablecoin treasury: idle ratio, yield capture, FX exposure.",
-      "0x43b53ec907ad9e1c7180f9e38d64e52b7f2250d8"),
-    s("deep-analysis", "Deep Market Analysis", "Halden Research", 4024, "/deep", 0.05, "FINANCIAL_ANALYSIS",
-      "Full market microstructure report. Priced above a conservative per-transaction limit.",
-      "0x1ffb3e19926f228dd2cff357470907b5f85d3fb8"),
-  ];
+  return SEED_STALLS.map((s) => ({
+    id: s.id,
+    name: s.name,
+    provider: s.provider,
+    endpoint: stallEndpoint(s),
+    method: "GET" as const,
+    priceUsdc: s.priceUsdc,
+    category: s.category,
+    description: s.description,
+    payoutAddress: s.payoutAddress,
+    firstParty: true,
+    tier: 0 as const,
+  }));
 }
 
 export function getListings(): Listing[] {

@@ -6,7 +6,7 @@
 import express from "express";
 import { createGatewayMiddleware } from "@circle-fin/x402-batching/server";
 import { formatUnits, createPublicClient, http, defineChain } from "viem";
-import { STALLS, type StallSpec } from "./catalog.ts";
+import { SEED_STALLS as STALLS, type SeedStall as StallSpec } from "../../lib/stalls.ts";
 
 type PaidRequest = express.Request & {
   payment?: { verified: boolean; payer: string; amount: string; network: string };
@@ -133,7 +133,9 @@ function serve(spec: StallSpec): void {
       category: spec.category,
       description: spec.description,
       payoutAddress: spec.payoutAddress,
-      endpoint: `http://localhost:${spec.port}${spec.path}`,
+      endpoint: process.env.STALL_PUBLIC_BASE
+        ? `${process.env.STALL_PUBLIC_BASE.replace(/\/$/, "")}/${spec.id}`
+        : `http://localhost:${spec.port}${spec.path}`,
     });
   });
 
