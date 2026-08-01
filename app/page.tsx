@@ -29,8 +29,8 @@ export default async function Landing() {
           </h1>
           <p className="hero-sub">Deposit. Earn. Govern. Spend. — on Arc.</p>
           <div className="hero-actions">
-            <Link className="btn" href="/console">
-              Open the console
+            <Link className="btn" href="/bank">
+              Open the bank
             </Link>
             <Link className="btn btn-outline" href="/ledger">
               Verify every figure

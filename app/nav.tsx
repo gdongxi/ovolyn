@@ -4,8 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const PAGES = [
-  { href: "/console", label: "Console" },
-  { href: "/treasury", label: "Treasury" },
+  { href: "/bank", label: "Bank" },
   { href: "/market", label: "Market" },
   { href: "/ledger", label: "Ledger" },
   { href: "/agents", label: "Agents" },

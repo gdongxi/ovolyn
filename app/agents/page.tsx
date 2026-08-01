@@ -3,7 +3,6 @@ import { currentAccountId } from "@/lib/session";
 import { getAccount, listAgents } from "@/lib/accounts";
 import { getPolicy } from "@/lib/store";
 import { readLoop } from "@/lib/agentLoop";
-import { getListings } from "@/lib/registry";
 import { PageHead } from "@/app/pagehead";
 import { PolicyCard } from "@/app/controls";
 import { AgentLoopPanel } from "@/app/agentloop";
@@ -17,16 +16,12 @@ function Locked() {
     <>
       <PageHead
         title="Agents"
-        lede="This is the only page that asks you to sign in — everything on it belongs to one account."
+        lede="The only page that asks you to sign in."
       />
       <div className="locked">
         <p>
-          A human opens the account; the account issues each agent its credential; the agent spends
-          inside limits the human set. Since the limits and the keys are yours alone, this page
-          needs to know who you are.
-        </p>
-        <p className="mono-sm">
-          The treasury, the market and the ledger stay open — anyone can audit what this bank has done.
+          The keys and the limits on this page are yours alone. The bank, the market and the
+          ledger stay open — anyone can audit what this bank has done.
         </p>
         <Link className="btn" href="/signin">
           Open or resume your account
@@ -48,7 +43,7 @@ export default async function Agents() {
         <div>
           <PageHead
             title="Agents"
-            lede="Your agents register themselves. You decide what each may spend, and can take it back."
+            lede="They register themselves. You decide what each may spend."
           />
           <div className="acct-id">{account.address ?? account.email}</div>
           <div className="mono-sm">
@@ -75,9 +70,7 @@ export default async function Agents() {
             <li>Is it within today&apos;s budget?</li>
           </ol>
           <div className="mono-sm">
-            An agent&apos;s allowance narrows the account policy — it can never widen it. Whichever
-            is stricter applies. {getListings().length} services are listed; the allowlist decides
-            which of them your agents may reach.
+            An allowance narrows the policy, never widens it — the stricter of the two applies.
           </div>
         </div>
       </div>

@@ -10,7 +10,7 @@ export default async function Ledger() {
     <>
       <PageHead
         title="Ledger"
-        lede="Every movement the bank has made, including the ones it refused. Confirmed entries carry the transaction that produced them."
+        lede="Every movement, including the refusals."
       />
       <LedgerTable entries={entries} />
     </>

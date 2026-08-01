@@ -18,8 +18,7 @@ export function Footer() {
         <nav className="colophon-cols">
           <div>
             <div className="colophon-h">Bank</div>
-            <a href="/console">Console</a>
-            <a href="/treasury">Treasury</a>
+            <a href="/bank">Bank</a>
             <a href="/market">Market</a>
             <a href="/ledger">Ledger</a>
             <a href="/agents">Agents</a>
