@@ -38,10 +38,13 @@ const CHAIN = [
   },
 ];
 
+/** Signed in or out, the page describes itself the same way. */
+const LEDE = "They register themselves. You decide what each may spend.";
+
 function Locked() {
   return (
     <>
-      <PageHead title="Agents" />
+      <PageHead title="Agents" lede={LEDE} />
 
       <div className="locked">
         <p>
@@ -79,10 +82,7 @@ export default async function Agents() {
     <>
       <div className="acct-head">
         <div>
-          <PageHead
-            title="Agents"
-            lede="They register themselves. You decide what each may spend."
-          />
+          <PageHead title="Agents" lede={LEDE} />
           <div className="acct-id">{account.address ?? account.email}</div>
           <div className="mono-sm">
             account opened {account.createdAt.slice(0, 10)} ·{" "}
