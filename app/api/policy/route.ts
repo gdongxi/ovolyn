@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireOperator } from "@/lib/guard";
 import { getPolicy, setPolicy, type Policy } from "@/lib/store";
 
 export async function GET() {
@@ -6,6 +7,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const denied = await requireOperator();
+  if (denied) return denied;
+
   const body = await req.json();
   const current = getPolicy();
   const next: Policy = {

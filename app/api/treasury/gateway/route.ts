@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
+import { requireOperator } from "@/lib/guard";
 import { topUpGateway } from "@/lib/gateway";
 
 export const maxDuration = 300;
 
 export async function POST(req: Request) {
+  const denied = await requireOperator();
+  if (denied) return denied;
+
   const { amountUsdc } = await req.json();
   const amount = Number(amountUsdc);
   if (!Number.isFinite(amount) || amount <= 0 || amount > 50) {
