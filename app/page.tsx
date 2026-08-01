@@ -50,7 +50,7 @@ export default async function Console() {
 
       <div className="grid">
         <PolicyCard policy={policy} />
-        <AgentActions />
+        <AgentActions listings={listings} />
         <FxCard eurc={fmt(treasury.eurc, 4)} usdcFloat={fmt(treasury.usdc)} />
       </div>
 

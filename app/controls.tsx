@@ -165,45 +165,59 @@ export function FxCard({ eurc, usdcFloat }: { eurc: string; usdcFloat: string })
   );
 }
 
-const STALL = "http://localhost:4021";
-
-export function AgentActions() {
+/**
+ * A manual purchase, through exactly the same gates an agent goes through —
+ * useful for testing a policy change without waiting on an agent run. Targets
+ * come from the registry, so this card can never drift from what is listed.
+ */
+export function AgentActions({ listings }: { listings: { id: string; name: string; endpoint: string; priceUsdc: number }[] }) {
   const router = useRouter();
-  const [busy, setBusy] = useState<string | null>(null);
+  const [choice, setChoice] = useState(listings[0]?.id ?? "");
+  const [busy, setBusy] = useState(false);
   const [last, setLast] = useState<string | null>(null);
 
-  async function spend(path: string, label: string) {
-    setBusy(path);
+  const target = listings.find((l) => l.id === choice);
+
+  async function spend() {
+    if (!target) return;
+    setBusy(true);
     setLast(null);
     try {
       const res = await fetch("/api/agent/spend", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ url: `${STALL}${path}`, label }),
+        body: JSON.stringify({ url: target.endpoint, label: target.name }),
       });
       const data = await res.json();
       setLast(
         data.outcome === "SETTLED"
-          ? `✓ settled — paid $${data.priceUsdc} for ${label}`
+          ? `✓ settled — paid $${data.priceUsdc} for ${target.name}`
           : data.outcome === "BLOCKED"
             ? `✕ blocked — ${data.reason}`
             : `error — ${data.reason}`,
       );
     } finally {
-      setBusy(null);
+      setBusy(false);
       router.refresh();
     }
   }
 
   return (
     <div className="card">
-      <div className="label">Agent · autonomous spend</div>
-      <button className="btn" disabled={busy !== null} onClick={() => spend("/oracle", "market insight ($0.001)")}>
-        {busy === "/oracle" ? "Paying…" : "Buy market insight · $0.001"}
+      <div className="label">Manual spend · same gates</div>
+      <select className="field" value={choice} onChange={(e) => setChoice(e.target.value)} disabled={busy}>
+        {listings.map((l) => (
+          <option key={l.id} value={l.id}>
+            {l.name} · ${l.priceUsdc}
+          </option>
+        ))}
+      </select>
+      <button className="btn" disabled={busy || !target} onClick={spend}>
+        {busy ? "Paying…" : `Buy · $${target?.priceUsdc ?? 0}`}
       </button>
-      <button className="btn btn-outline" disabled={busy !== null} onClick={() => spend("/deep-analysis", "deep analysis ($0.05)")}>
-        {busy === "/deep-analysis" ? "Trying…" : "Buy deep analysis · $0.05"}
-      </button>
+      <div className="mono-sm" style={{ marginTop: 10 }}>
+        Allowlist → live quote → per-tx limit → daily budget
+      </div>
       {last && <div className={`spend-result ${last.startsWith("✓") ? "ok" : "blocked"}`}>{last}</div>}
     </div>
   );
