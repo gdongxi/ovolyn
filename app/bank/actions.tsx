@@ -98,6 +98,21 @@ export function DepositPanel() {
   );
 }
 
+export function GatewayPanel() {
+  const { busy, outcome, run } = useAction("/api/treasury/gateway", () => "Topped up");
+  return (
+    <Action
+      cta="Top up"
+      busyLabel="Depositing…"
+      note="Wallet into Gateway · drains as the agent pays"
+      defaultAmount={1}
+      busy={busy}
+      outcome={outcome}
+      run={run}
+    />
+  );
+}
+
 export function SweepPanel() {
   const { busy, outcome, run } = useAction("/api/treasury/sweep", (d) => `Minted ${d.mintedUsyc} USYC`);
   return (

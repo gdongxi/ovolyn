@@ -5,7 +5,7 @@ import { getLedger, getPolicy, spentTodayUsdc } from "@/lib/store";
 import { readRun } from "@/lib/runbook";
 import { RunPanel } from "@/app/runpanel";
 import { PageHead } from "@/app/pagehead";
-import { DepositPanel, SweepPanel, FxPanel } from "./actions";
+import { DepositPanel, GatewayPanel, SweepPanel, FxPanel } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +41,7 @@ export default async function Bank() {
           <div className="label">Gateway</div>
           <div className="value">{fmt(gateway, 4)}</div>
           <div className="sub">x402 · spent today ${spentTodayUsdc().toFixed(6)}</div>
+          <GatewayPanel />
         </div>
         <div className="card">
           <div className="label">Yield sleeve</div>
