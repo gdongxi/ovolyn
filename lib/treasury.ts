@@ -81,7 +81,7 @@ export function evaluateAutoSweep(idleUsdc: number, thresholdUsdc: number): Auto
       threshold: thresholdUsdc,
       reason: excess <= 0
         ? `idle ${idleUsdc.toFixed(2)} is at or below the ${thresholdUsdc.toFixed(2)} threshold`
-        : `excess ${excess.toFixed(2)} is below the ${MIN_SWEEP_USDC} minimum sweep`,
+        : `excess ${excess.toFixed(4)} is below the ${MIN_SWEEP_USDC.toFixed(2)} minimum sweep`,
     };
   }
   return { action: "SWEEP", idle: idleUsdc, threshold: thresholdUsdc, amount: Number(excess.toFixed(2)) };

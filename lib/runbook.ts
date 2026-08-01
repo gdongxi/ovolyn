@@ -38,7 +38,7 @@ export type Run = {
 const RUN_FILE = "run.json";
 const DATA_DIR = join(process.cwd(), "data");
 
-const DEPOSIT_USDC = 2;
+const DEPOSIT_USDC = 3;
 
 /**
  * Purchase targets come from the registry, not from hardcoded URLs: the
