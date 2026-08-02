@@ -386,6 +386,11 @@ table.ledger td { padding: 12px; font-size: 15px; border-bottom: 1px solid var(-
   .runhead .label, .runhead .mono-sm { white-space: normal; overflow: visible; }
   .runhead .btn.runbtn { width: 100%; }
 
+  /* A grid track is `min-width: auto` by default, so one unbreakable
+     endpoint URL props the whole row open. Let the text break instead. */
+  .listing-head > *, .listing-row > * { min-width: 0; }
+  .lname, .lmeta, .lprov { overflow-wrap: anywhere; }
+
   .ledger-controls { gap: 12px; }
   .filtergroup { flex-wrap: wrap; }
   .ledger-count { margin-left: 0; }
