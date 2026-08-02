@@ -47,7 +47,7 @@ export function LedgerTable({ entries }: { entries: LedgerEntry[] }) {
         </div>
       </div>
 
-      <table className="ledger">
+      <table className="ledger labelled">
         <thead>
           <tr>
             <th>Time (UTC)</th>
@@ -67,9 +67,9 @@ export function LedgerTable({ entries }: { entries: LedgerEntry[] }) {
           )}
           {rows.map((e, i) => (
             <tr key={i}>
-              <td>{e.ts.slice(0, 16).replace("T", " ")}</td>
-              <td>{e.type}</td>
-              <td>
+              <td data-label="Time (UTC)">{e.ts.slice(0, 16).replace("T", " ")}</td>
+              <td data-label="Type">{e.type}</td>
+              <td data-label="Detail">
                 {e.detail}
                 {e.reason ? ` — ${e.reason}` : ""}
                 {e.txHash && (
@@ -84,8 +84,11 @@ export function LedgerTable({ entries }: { entries: LedgerEntry[] }) {
                   </a>
                 )}
               </td>
-              <td>{e.amount}</td>
-              <td className={e.status === "BLOCKED" || e.status === "FAILED" ? "blocked" : "ok"}>
+              <td data-label="Amount">{e.amount}</td>
+              <td
+                data-label="Status"
+                className={e.status === "BLOCKED" || e.status === "FAILED" ? "blocked" : "ok"}
+              >
                 {e.status}
               </td>
             </tr>

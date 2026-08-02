@@ -2,6 +2,9 @@
 HANDOFF.md
 SUBMISSION_FORM_ANSWERS.md
 
+# editor/agent tooling, not the project
+.claude/
+
 node_modules/
 .env
 .env.local

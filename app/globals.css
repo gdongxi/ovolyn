@@ -326,3 +326,100 @@ table.ledger td { padding: 12px; font-size: 15px; border-bottom: 1px solid var(-
 .empty { color: var(--muted); font-family: inherit; font-style: italic; padding: 28px 12px; }
 .tx { margin-left: 10px; color: var(--muted); text-decoration: none; border-bottom: 1px dotted var(--muted); }
 .tx:hover { color: var(--ink); border-color: var(--ink); }
+
+/* Tablets: four stages side by side stop fitting well before they stop
+   fitting at all. Two rows of two, until the phone rules take over. */
+@media (max-width: 900px) {
+  .stages { grid-template-columns: 1fr 1fr; }
+}
+
+/* ── Phones ──────────────────────────────────────────────────────────
+   Everything above assumes a desk. Below 700px the page is one column,
+   the plates lose their wide margins, and the ledger stops being a
+   table — five columns of monospace do not survive a 375px screen, so
+   each row becomes a small labelled card instead. */
+
+@media (max-width: 700px) {
+  /* The bar: the mark keeps its line, the links take the next one. */
+  .topbar { flex-wrap: wrap; gap: 12px; padding: 14px 18px; }
+  .brand { font-size: 14px; letter-spacing: 0.24em; gap: 9px; }
+  .topright { width: 100%; justify-content: space-between; gap: 12px; }
+  .mainnav { gap: 15px; flex-wrap: wrap; }
+  .navlink { font-size: 11px; letter-spacing: 0.07em; }
+
+  .main { padding: 24px 18px; }
+  .landing { margin: -24px -18px 0; }
+
+  .hero { padding: 54px 18px 46px; }
+  .hero h1 { font-size: clamp(34px, 10vw, 46px); }
+  .hero-sub { font-size: 16px; }
+  .hero-actions { flex-direction: column; gap: 11px; margin-top: 30px; }
+  .hero-actions .btn { width: 100%; padding: 14px 20px; }
+
+  /* Two figures per row reads better than one tall stack. */
+  .stat-band { padding: 30px 18px; }
+  .stat-inner { gap: 22px 18px; }
+  .stat { min-width: 42%; }
+  .stat-v { font-size: 26px; }
+
+  .verbs-band { grid-template-columns: 1fr; gap: 16px; padding: 38px 18px; }
+  .verb-name { font-size: 23px; }
+  .proof-band { padding: 10px 18px 54px; }
+  .proof-copy h2 { font-size: 27px; }
+
+  .colophon { padding: 44px 0 0; }
+  .colophon-inner { padding: 0 18px; gap: 28px; }
+  .colophon-cols { gap: 26px 34px; }
+
+  .pagehead h1 { font-size: 31px; }
+  .pagehead p { font-size: 15px; }
+
+  /* One column, everywhere. */
+  .grid, .grid-2, .balances, .doors, .listform-grid, .stages { grid-template-columns: 1fr; }
+  .listform-grid label.wide { grid-column: auto; }
+  .card { padding: 18px; }
+  .card .value, .balances .value { font-size: 31px; }
+
+  /* The sequence panel: the button belongs under the sentence, not beside it. */
+  .runpanel { padding: 18px; }
+  .runhead { flex-direction: column; align-items: stretch; gap: 14px; margin-bottom: 18px; }
+  .runhead .label, .runhead .mono-sm { white-space: normal; overflow: visible; }
+  .runhead .btn.runbtn { width: 100%; }
+
+  .ledger-controls { gap: 12px; }
+  .filtergroup { flex-wrap: wrap; }
+  .ledger-count { margin-left: 0; }
+
+  /* Rows become cards. The header row is for screen readers only now. */
+  .ledger.labelled thead {
+    position: absolute; width: 1px; height: 1px;
+    overflow: hidden; clip-path: inset(50%);
+  }
+  .ledger.labelled tr { display: block; border: 1.5px solid var(--line); padding: 12px 14px; margin-bottom: 12px; }
+  .ledger.labelled td {
+    display: grid; grid-template-columns: 74px 1fr; gap: 10px;
+    padding: 5px 0; border: none; font-size: 13px; overflow-wrap: anywhere;
+  }
+  .ledger.labelled td::before {
+    content: attr(data-label);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 10px; letter-spacing: 0.13em; text-transform: uppercase;
+    color: var(--muted); padding-top: 2px;
+  }
+  .ledger.labelled td.ledger-empty { display: block; }
+  .ledger.labelled td.ledger-empty::before { content: none; }
+  .tx { margin-left: 0; display: inline-block; }
+
+  /* The short activity table stays a table; it only needs less air.
+     Matching `table.ledger td` selector-for-selector — a media query adds
+     no specificity, so a bare `.ledger td` here would lose to the rule above. */
+  table.ledger th, table.ledger td { padding: 8px 5px; font-size: 12px; }
+  .ledger .nowrap { white-space: normal; }
+
+  /* Rows that pair a label with a control stack instead of colliding. */
+  .acct-head, .agentrow, .runhead, .pairactions { flex-direction: column; align-items: stretch; }
+  .acct-actions, .agentgrant { flex-wrap: wrap; }
+  .chain-step { gap: 14px; }
+  .locked { padding: 22px 20px; }
+  .signin { margin: 24px auto; }
+}
