@@ -21,6 +21,12 @@ export type LedgerEntry = {
   reason?: string;
   /** Arc tx hash when the movement reached the chain — renders as an explorer link. */
   txHash?: string;
+  /**
+   * Whose spending this counts against. Absent means the house: the operator's
+   * own console, the orchestrated run, the autonomous loop. A visitor's agent
+   * carries its owner's id, so a stranger cannot spend the demo's day.
+   */
+  accountId?: string;
 };
 
 const DEFAULT_POLICY: Policy = {
@@ -73,9 +79,20 @@ export function appendLedger(entry: LedgerEntry): void {
   save("ledger.json", ledger);
 }
 
-export function spentTodayUsdc(): number {
+/**
+ * The day's spending for one payer. The budget is a per-account allowance, not
+ * a global one: a stranger's agent has its own day, and exhausting it leaves
+ * the operator's untouched.
+ */
+export function spentTodayUsdc(accountId?: string): number {
   const today = new Date().toISOString().slice(0, 10);
   return getLedger()
-    .filter((e) => e.status === "SETTLED" && e.type === "x402 spend" && e.ts.startsWith(today))
+    .filter(
+      (e) =>
+        e.status === "SETTLED" &&
+        e.type === "x402 spend" &&
+        e.ts.startsWith(today) &&
+        (e.accountId ?? null) === (accountId ?? null),
+    )
     .reduce((sum, e) => sum + Math.abs(Number(e.amount)), 0);
 }

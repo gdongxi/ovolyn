@@ -39,8 +39,13 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "url required" }, { status: 400 });
   }
 
-  const result = await agentSpend(url, `${label ?? "agent request"} · ${agent.name}`, {
-    perTxLimitUsdc: agent.allowance.perTxLimitUsdc,
-  });
+  // Charged to the agent's owner, not to the house: a visitor's agent gets its
+  // own day, and running it out leaves the operator's demo untouched.
+  const result = await agentSpend(
+    url,
+    `${label ?? "agent request"} · ${agent.name}`,
+    { perTxLimitUsdc: agent.allowance.perTxLimitUsdc },
+    agent.accountId,
+  );
   return NextResponse.json(result);
 }

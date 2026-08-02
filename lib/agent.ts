@@ -12,10 +12,11 @@ export type SpendResult = {
   response?: unknown;
 };
 
-function block(detail: string, reason: string, price?: number): SpendResult {
+function block(detail: string, reason: string, price?: number, accountId?: string): SpendResult {
   appendLedger({
     ts: new Date().toISOString(),
     type: "blocked spend",
+    accountId,
     detail,
     amount: price ? `-${price.toFixed(6)}` : "0",
     status: "BLOCKED",
@@ -45,6 +46,7 @@ export async function agentSpend(
   url: string,
   label: string,
   caps?: { perTxLimitUsdc?: number },
+  accountId?: string,
 ): Promise<SpendResult> {
   const accountPolicy = getPolicy();
   const policy = {
@@ -57,7 +59,7 @@ export async function agentSpend(
   const detail = `${label} · ${url}`;
 
   if (!policy.allowlist.some((prefix) => url.startsWith(prefix))) {
-    return block(detail, `service not on allowlist`);
+    return block(detail, `service not on allowlist`, undefined, accountId);
   }
 
   let price: number;
@@ -68,11 +70,12 @@ export async function agentSpend(
   }
 
   if (price > policy.perTxLimitUsdc) {
-    return block(detail, `price $${price} exceeds per-tx limit $${policy.perTxLimitUsdc}`, price);
+    return block(detail, `price $${price} exceeds per-tx limit $${policy.perTxLimitUsdc}`, price, accountId);
   }
-  const spent = spentTodayUsdc();
+  // Each payer gets its own day, so a visitor cannot spend the operator's.
+  const spent = spentTodayUsdc(accountId);
   if (spent + price > policy.dailyBudgetUsdc) {
-    return block(detail, `daily budget $${policy.dailyBudgetUsdc} would be exceeded (spent $${spent.toFixed(6)})`, price);
+    return block(detail, `daily budget $${policy.dailyBudgetUsdc} would be exceeded (spent $${spent.toFixed(6)})`, price, accountId);
   }
 
   try {
@@ -90,6 +93,7 @@ export async function agentSpend(
     const entry: LedgerEntry = {
       ts: new Date().toISOString(),
       type: "x402 spend",
+      accountId,
       detail: `${detail} · eip155:5042002`,
       amount: `-${price.toFixed(6)}`,
       status: "SETTLED",
