@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getListings, addListing, probeAll } from "@/lib/registry";
+import { getListings, probeAll } from "@/lib/registry";
 
 export const maxDuration = 60;
 
@@ -8,27 +8,23 @@ export async function GET() {
   return NextResponse.json(getListings());
 }
 
-/** Permissionless listing — no human approval, the probe decides the tier. */
+/**
+ * Re-probing is open, because the probe is the thing that keeps the market
+ * honest and anyone should be able to make it run again.
+ *
+ * Listing is not here. It goes through /api/registry/sign, which makes the
+ * provider sign for the payout address that will receive the money — the
+ * market page says a signature is required, and this is where that is true.
+ * An unsigned path also let a stranger take over a listing by reusing its id,
+ * payout address and all.
+ */
 export async function POST(req: Request) {
-  const body = await req.json();
+  const body = await req.json().catch(() => ({}));
   if (body.action === "probe") {
     return NextResponse.json(await probeAll());
   }
-  const required = ["id", "name", "provider", "endpoint", "priceUsdc", "payoutAddress"];
-  const missing = required.filter((k) => !body[k]);
-  if (missing.length) {
-    return NextResponse.json({ error: `missing: ${missing.join(", ")}` }, { status: 400 });
-  }
-  const listing = addListing({
-    id: String(body.id),
-    name: String(body.name),
-    provider: String(body.provider),
-    endpoint: String(body.endpoint),
-    method: body.method === "POST" ? "POST" : "GET",
-    priceUsdc: Number(body.priceUsdc),
-    category: String(body.category ?? "OTHER"),
-    description: String(body.description ?? ""),
-    payoutAddress: String(body.payoutAddress),
-  });
-  return NextResponse.json(listing, { status: 201 });
+  return NextResponse.json(
+    { error: "list a service at /api/registry/sign — the payout address has to sign for it" },
+    { status: 400 },
+  );
 }

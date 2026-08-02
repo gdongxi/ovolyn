@@ -86,7 +86,37 @@ function save(listings: Listing[]): void {
   writeFileSync(path(), JSON.stringify(listings, null, 2));
 }
 
+/**
+ * A listed endpoint is a URL this server will fetch, supplied by a stranger.
+ * That makes the registry a request forwarder unless the target is confined to
+ * the public internet: an address inside the compose network, on the loopback,
+ * or on the cloud's metadata range is not a market stall, it is our own inside.
+ *
+ * Names are left to resolve on their own. This closes the address a prober can
+ * be pointed at, not every path an attacker could imagine.
+ */
+const PRIVATE_HOST =
+  /^(localhost|.*\.localhost|127\.|0\.0\.0\.0$|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|\[?::1\]?$|\[?f[cd][0-9a-f]{2}:|\[?fe80:|metadata\.)/i;
+
+export function assertReachableEndpoint(endpoint: string): void {
+  let url: URL;
+  try {
+    url = new URL(endpoint);
+  } catch {
+    throw new Error("endpoint must be an absolute http(s) URL");
+  }
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    throw new Error("endpoint must use http or https");
+  }
+  // A single-label host — `caddy`, `app`, `stalls` — only resolves inside a
+  // private network. On the public internet a name carries a dot.
+  if (!url.hostname.includes(".") || PRIVATE_HOST.test(url.hostname)) {
+    throw new Error("endpoint must be reachable on the public internet");
+  }
+}
+
 export function addListing(input: Omit<Listing, "tier" | "probe" | "firstParty">): Listing {
+  assertReachableEndpoint(input.endpoint);
   const listings = getListings();
   const listing: Listing = { ...input, firstParty: false, tier: 0 };
   const i = listings.findIndex((l) => l.id === listing.id);
@@ -114,6 +144,8 @@ export function recordProbe(id: string, result: ProbeResult): Listing | undefine
 export async function probe(listing: Listing): Promise<ProbeResult> {
   const checkedAt = new Date().toISOString();
   try {
+    // Listings stored before the address check existed still pass through here.
+    assertReachableEndpoint(listing.endpoint);
     const res = await fetch(listing.endpoint, { method: listing.method, signal: AbortSignal.timeout(8000) });
     const alive = true;
     const header = res.headers.get("payment-required");

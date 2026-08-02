@@ -6,6 +6,8 @@
 
 **Agent operators deposit USDC. Idle balances earn treasury yield. Humans set the policy. Agents spend autonomously within it.**
 
+**Live: [ovolyn.xyz](https://ovolyn.xyz)** · [Deck](docs/ovolyn-deck.pdf) · [Deployment](docs/DEPLOY.md) · [Spec](docs/PRODUCT-SPEC.md)
+
 Built on [Arc](https://docs.arc.io) (Circle's stablecoin-native L1, USDC as gas) for the [Programmable Money Hackathon](https://www.encodeclub.com/programmes/arc-hackathon). Tracks: **Agentic Economy** (primary) + **DeFi** (yield treasury layer).
 
 ## Why
@@ -42,21 +44,49 @@ any chain ──CCTP──▶ Ovolyn Account (Arc Testnet)
 | FX / rebalancing | Circle App Kit — `@circle-fin/app-kit` + `@circle-fin/adapter-circle-wallets` (Swap is Arc-Testnet-exclusive among testnets) |
 | Yield | USYC via the issuer's Teller contract (allowlisted treasury wallet) |
 
-## Status
+## What is live
 
-Hackathon build in progress — final MVP due 2026-08-09.
+All four verbs — deposit, earn, govern, spend — plus FX rebalancing run from one console at [ovolyn.xyz](https://ovolyn.xyz), and every figure is verifiable on Arc Testnet.
 
-- [x] Agent wallet provisioned on Arc Testnet via Circle Agent Stack
-- [x] Circle Gateway funded (direct on-chain deposit, sub-second finality)
-- [x] First x402 nanopayment completed on Arc Testnet — $0.001 USDC, 402 → 200, settled via Gateway ([`services/demo-stall/`](services/demo-stall/server.ts))
-- [x] CFO console with live balances, editable spending policy, agent spend actions
-- [x] Policy enforcement verified on-chain: in-bounds $0.001 settled, out-of-bounds $0.05 **blocked** by per-tx limit
-- [x] USYC idle sweep live: agent wallet → treasury → Teller.deposit, 3 USDC → 2.650424 USYC minted on Arc Testnet
-- [x] CCTP V2 cross-chain deposit live: Sepolia burn → fast attestation → mint to the agent wallet on Arc
-- [x] USDC/EURC treasury rebalancing via Swap — the only testnet where this exists (2 USDC → 1.538147 EURC, live)
-- [ ] 3-minute demo video + final deck
+- Agent wallet provisioned on Arc Testnet via Circle Agent Stack
+- Circle Gateway funded by direct on-chain deposit, sub-second finality
+- x402 nanopayments settling on Arc Testnet — $0.001 USDC, 402 → 200, through Gateway
+- Policy enforcement proven both ways: an in-bounds $0.001 settles, an out-of-bounds $0.05 is **refused**, and the refusal is written to the ledger with its reason
+- USYC idle sweep: agent wallet → treasury → `Teller.deposit`, minting USYC on Arc
+- CCTP V2 cross-chain deposit: Sepolia burn → fast attestation → mint on Arc
+- USDC/EURC treasury rebalancing via Swap — the only testnet where this exists
+- Open service registry: anyone may list against a signature from their payout address, a Tier-0 probe decides the tier, and no human reviews the queue
+- An LLM decision loop that reads balances and policy, substitutes a cheaper service when refused, and escalates to its operator instead of raising its own limit
 
-**All four verbs — deposit, earn, govern, spend — plus FX rebalancing are live and demoable from one console.**
+### Try it without an account
+
+The four seed stalls are public x402 endpoints. Any agent, on any of a dozen testnets, can pay one:
+
+```bash
+curl -i https://ovolyn.xyz/stall/gas-oracle     # 402 + a payment-required quote
+```
+
+Reading is open to everyone — balances, the market, and the whole ledger including the refusals. Moving money is not: those routes answer only to the account named in `OPERATOR_ALLOWLIST`.
+
+## Run it
+
+See [docs/DEPLOY.md](docs/DEPLOY.md). Three containers, two persistent volumes, automatic HTTPS.
+
+```bash
+cp .env.example .env      # fill in the Circle keys and your operator identity
+docker compose up -d --build
+```
+
+## Repo map
+
+| Path | What is in it |
+|---|---|
+| `app/` | Next.js console — landing, `/bank`, `/market`, `/ledger`, `/agents`, and the API |
+| `lib/` | The bank itself — CCTP, treasury, policy engine, registry, agent loop |
+| `services/stalls/` | The four seed x402 services the agent can buy from |
+| `cli/` | Agent-side CLI: pair with an account, read the market, request a spend |
+| `scripts/` | `responsive-audit.mjs` — measures layout overflow across viewports over CDP |
+| `docs/` | Deck, deployment guide, product spec |
 
 ## Team
 

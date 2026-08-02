@@ -15,7 +15,7 @@ function injectedWallet(): Eip1193 | null {
   return w.ethereum?.providers?.[0] ?? w.ethereum ?? w.okxwallet ?? w.BinanceChain ?? null;
 }
 
-export function SignInForm() {
+export function SignInForm({ emailWorks = true }: { emailWorks?: boolean }) {
   const router = useRouter();
   const [busy, setBusy] = useState<"wallet" | "email" | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -106,7 +106,7 @@ export function SignInForm() {
           placeholder="you@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          disabled={codeSent}
+          disabled={!emailWorks || codeSent}
         />
         {codeSent && (
           <input
@@ -117,9 +117,19 @@ export function SignInForm() {
             onChange={(e) => setCode(e.target.value)}
           />
         )}
-        <button className="btn btn-outline" onClick={codeSent ? verifyCode : sendCode} disabled={busy !== null || !email}>
+        <button
+          className="btn btn-outline"
+          onClick={codeSent ? verifyCode : sendCode}
+          disabled={!emailWorks || busy !== null || !email}
+        >
           {busy === "email" ? "Working…" : codeSent ? "Verify code" : "Email me a code"}
         </button>
+        {!emailWorks && (
+          <div className="cardnote">
+            Not carrying mail on testnet — no message would arrive. Use a wallet; this door opens
+            the same account either way.
+          </div>
+        )}
         {devCode && <div className="mono-sm devcode">testnet: your code is {devCode}</div>}
       </div>
 

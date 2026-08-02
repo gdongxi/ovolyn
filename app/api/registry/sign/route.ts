@@ -68,17 +68,23 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "invalid or reserved service id" }, { status: 400 });
   }
 
-  const listing = addListing({
-    id,
-    name: String(body.name ?? id).slice(0, 60),
-    provider: String(body.provider ?? "Independent").slice(0, 60),
-    endpoint: String(body.endpoint ?? ""),
-    method: body.method === "POST" ? "POST" : "GET",
-    priceUsdc: Number(body.priceUsdc),
-    category: String(body.category ?? "OTHER").slice(0, 40),
-    description: String(body.description ?? "").slice(0, 240),
-    payoutAddress: address.toLowerCase(),
-  });
+  let listing;
+  try {
+    listing = addListing({
+      id,
+      name: String(body.name ?? id).slice(0, 60),
+      provider: String(body.provider ?? "Independent").slice(0, 60),
+      endpoint: String(body.endpoint ?? ""),
+      method: body.method === "POST" ? "POST" : "GET",
+      priceUsdc: Number(body.priceUsdc),
+      category: String(body.category ?? "OTHER").slice(0, 40),
+      description: String(body.description ?? "").slice(0, 240),
+      payoutAddress: address.toLowerCase(),
+    });
+  } catch (e) {
+    // An unreachable address is the provider's mistake, not a server fault.
+    return NextResponse.json({ error: String((e as Error).message) }, { status: 400 });
+  }
 
   // No human reviews this — the probe does.
   const result = await probe(listing);
