@@ -28,7 +28,10 @@ treasury — set it to the wallet address or email you will sign in with.
 docker compose up -d --build
 ```
 
-Caddy requests a certificate on first request; give it a few seconds.
+Caddy orders a certificate for every named host the moment it loads the config,
+not on the first request — so the DNS record has to resolve before this runs.
+Point the name at the box first and confirm it, or Caddy spends its first
+minutes failing validation and backing off.
 
 ## 4. Log the agent wallet in
 
