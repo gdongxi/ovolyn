@@ -64,3 +64,14 @@ route means the guard is on: reading is public, spending is not.
   `down -v` destroys it.
 - **Logs**: `docker compose logs -f app` / `stalls`.
 - **Updating**: `git pull && docker compose up -d --build`. Volumes survive.
+- **Changing the Caddyfile needs the container recreated, not reloaded.** Compose
+  binds the file, and a bind to a file is a bind to an inode; `git pull` writes a
+  replacement and renames it, so the running container keeps reading the old one.
+  `caddy reload` then logs `config is unchanged` and exits happily, and
+  `caddy validate` blesses the stale file just as happily. Neither tells you
+  anything. Use `docker compose up -d --force-recreate caddy`, and confirm with
+  `docker compose exec caddy grep -c <the-new-hostname> /etc/caddy/Caddyfile`.
+- **Adding a hostname costs one certificate, not a reissue of the others.** Caddy
+  keeps one certificate per name, so a new site block never disturbs a name that
+  is already serving. Let the DNS resolve first: the order goes out at config
+  load, and Let's Encrypt allows five failed validations per hostname per hour.

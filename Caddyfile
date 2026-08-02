@@ -1,7 +1,4 @@
-# The routes, defined once and served under every name the bank answers to.
-# Two hostnames reach the same app during the move to a real domain, and one
-# copy of the routes is what keeps them from drifting apart.
-(bank) {
+{$OVOLYN_DOMAIN} {
 	encode zstd gzip
 
 	# The seed services, published so agents anywhere can buy from them —
@@ -26,18 +23,4 @@
 	handle {
 		reverse_proxy app:3000
 	}
-}
-
-# The canonical name. STALL_PUBLIC_BASE is built from this variable, so it is
-# also the origin already written into ledger records and registry listings —
-# which is why it keeps serving until those records stop mattering.
-{$OVOLYN_DOMAIN} {
-	import bank
-}
-
-# The bought name, serving the same bank under its own certificate. Caddy issues
-# one certificate per hostname, so this never disturbs the one above.
-# Add `www.ovolyn.xyz` here only alongside a DNS record of its own.
-ovolyn.xyz {
-	import bank
 }
