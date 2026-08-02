@@ -56,12 +56,57 @@
   .why .item p { font-size: 19px; line-height: 1.45; color: #333; }
 
   /* traction */
-  .proof { background: #0a0a0a; color: #fff; padding: 34px 38px; margin-top: 4px; }
+  .proof { background: #0a0a0a; color: #fff; padding: 30px 34px; margin-top: 4px; }
   .proof .line { font-family: "SF Mono", Menlo, monospace; font-size: 19px; line-height: 1.9; }
-  .proof .line b { color: #7fff9e; font-weight: 600; }
-  .checkrow { display: flex; gap: 34px; margin-top: 26px; }
+  .proof .line b { color: #d3ac66; font-weight: 600; }
+  .checkrow { display: flex; gap: 34px; margin-top: 24px; }
   .check { font-size: 20px; }
   .check::before { content: "✓  "; font-weight: 700; }
+
+  /* run table (slide 6) */
+  .run { background: #0a0a0a; color: #fff; padding: 26px 32px; margin-top: 2px;
+         font-family: "SF Mono", Menlo, monospace; font-size: 17px; }
+  .runrow { display: flex; align-items: baseline; gap: 18px; line-height: 2.05; white-space: nowrap; }
+  .runrow .verb { width: 96px; color: #fff; font-weight: 700; letter-spacing: 0.1em; font-size: 15px; }
+  .runrow .amt  { width: 132px; color: #d3ac66; font-weight: 600; text-align: right; }
+  .runrow .det  { flex: 1; color: #c9c9c9; overflow: hidden; text-overflow: ellipsis; }
+  .runrow .dur  { width: 48px; text-align: right; color: #7d7d7d; }
+  .runrow.refused .amt { color: #e0655a; }
+  .runrow.refused .det { color: #f0a49c; }
+  .note { font-size: 17px; color: #555; line-height: 1.5; margin-top: 20px; }
+  .note b { color: #0a0a0a; font-weight: 600; }
+
+  /* agent loop (slide 7) */
+  .goal { border-left: 5px solid #b08d4f; padding: 4px 0 4px 22px; font-size: 21px;
+          font-style: italic; color: #333; margin-bottom: 22px; }
+  .loop { font-family: "SF Mono", Menlo, monospace; font-size: 17.5px; }
+  .lstep { display: flex; align-items: baseline; gap: 16px; line-height: 1.95; }
+  .lstep .n { width: 20px; color: #999; }
+  .lstep .act { flex: 1; color: #222; }
+  .lstep .px { width: 74px; text-align: right; color: #b08d4f; font-weight: 600; }
+  .lstep .st { width: 92px; text-align: right; color: #888; font-size: 15px; letter-spacing: 0.06em; }
+  .lstep.turn .act { font-weight: 600; }
+  .lstep.turn .act em { font-style: normal; color: #b08d4f; }
+  .lstep.halt { border-top: 1px solid #ddd; margin-top: 10px; padding-top: 12px; }
+  .lstep.halt .act { color: #0a0a0a; font-weight: 600; }
+  .said { font-family: "SF Mono", Menlo, monospace; font-size: 16.5px; color: #555;
+          padding-left: 36px; line-height: 1.6; margin-top: 2px; }
+
+  /* authority strip */
+  .auth { display: flex; gap: 26px; margin-top: 26px; border-top: 2px solid #0a0a0a; padding-top: 20px; }
+  .auth .a { flex: 1; }
+  .auth .a h4 { font-size: 15px; letter-spacing: 0.16em; text-transform: uppercase; color: #888; margin-bottom: 7px; }
+  .auth .a p { font-size: 17.5px; line-height: 1.4; color: #222; }
+
+  /* shipped / next */
+  .cols { display: flex; gap: 54px; margin-top: 2px; }
+  .col { flex: 1; }
+  .col > h3 { font-size: 16px; letter-spacing: 0.2em; text-transform: uppercase;
+              color: #888; border-bottom: 2px solid #0a0a0a; padding-bottom: 10px; margin-bottom: 6px; }
+  .li { display: flex; align-items: baseline; gap: 16px; padding: 10px 0; border-bottom: 1px solid #e4e4e4; }
+  .li .date { width: 74px; font-size: 14px; font-weight: 700; letter-spacing: 0.06em; color: #b08d4f; flex-shrink: 0; }
+  .li .txt { font-size: 18px; line-height: 1.35; }
+  .col.next .li .date { color: #999; }
 
   /* model */
   .model-hero { font-size: 33px; font-weight: 600; line-height: 1.35; margin: 10px 0 36px 0; }
@@ -87,7 +132,7 @@
 <section class="slide cover">
   <img src="../demo_assets/brand/ovolyn-lockup-vertical.svg" alt="OVOLYN">
   <div class="tagline">The Autonomous Bank for AI Agents</div>
-  <div class="meta">Programmable Money Hackathon · Built on Arc · 2026<br><br>Tracks — Agentic Economy · DeFi</div>
+  <div class="meta">Programmable Money Hackathon · Built on Arc · 2026<br><br>Tracks — Agentic Economy · DeFi<br><br>Live — ovolyn.150-109-254-190.sslip.io</div>
 </section>
 
 <!-- 2 · Problem -->
@@ -199,24 +244,62 @@
   <div class="pageno">5</div>
 </section>
 
-<!-- 6 · Traction -->
+<!-- 6 · It already works -->
 <section class="slide">
   <div class="masthead">OVOLYN</div>
   <div class="kicker">It already works</div>
-  <h2>First nanopayment settled on Arc Testnet — July 23, 2026.</h2>
-  <div class="proof">
-    <div class="line">agent wallet   <b>0xec83…6c98</b>  provisioned via Circle Agent Stack</div>
-    <div class="line">gateway fund   <b>5 USDC</b>  direct on-chain deposit · instant finality</div>
-    <div class="line">paid request   <b>$0.001</b>  HTTP 402 → 200 · network eip155:5042002</div>
-    <div class="line">balance        <b>5.000000 → 4.999000</b>  settled via Circle Gateway</div>
+  <h2>One button. Four flows. 76 seconds on Arc Testnet.</h2>
+  <div class="run">
+    <div class="runrow">
+      <span class="verb">DEPOSIT</span><span class="amt">+3.000000</span>
+      <span class="det">Sepolia → Arc · CCTP V2 fast · mint 0x34045f8995…</span><span class="dur">50s</span>
+    </div>
+    <div class="runrow">
+      <span class="verb">EARN</span><span class="amt">−4.000000</span>
+      <span class="det">idle 14.00 &gt; threshold 10.00 → minted 3.530454 USYC</span><span class="dur">17s</span>
+    </div>
+    <div class="runrow">
+      <span class="verb">SPEND</span><span class="amt">−0.001000</span>
+      <span class="det">Arc Gas Oracle · HTTP 402 → 200 · settled via Gateway</span><span class="dur">7s</span>
+    </div>
+    <div class="runrow refused">
+      <span class="verb">GOVERN</span><span class="amt">REFUSED</span>
+      <span class="det">Deep Market Analysis $0.05 &gt; per-tx limit $0.01</span><span class="dur">2s</span>
+    </div>
   </div>
+  <p class="note">The 50 seconds is Sepolia’s block time and the cross-chain attestation — <b>not Arc</b>.
+    Every movement on the Arc side, including the refusal, settles in seconds and lands on one auditable ledger.</p>
   <div class="checkrow">
-    <div class="check">x402 service stall live</div>
-    <div class="check">No API keys, no allowlists</div>
+    <div class="check">Live, not a mock</div>
+    <div class="check">Every hash on Arcscan</div>
     <div class="check">Open source</div>
   </div>
   <div class="foot">OVOLYN · Programmable Money Hackathon 2026</div>
   <div class="pageno">6</div>
+</section>
+
+<!-- 7 · Autonomy -->
+<section class="slide">
+  <div class="masthead">OVOLYN</div>
+  <div class="kicker">Autonomy</div>
+  <h2>The agent adapts. It does not overreach.</h2>
+  <div class="goal">“What does it cost to transact on Arc right now, is our idle USDC earning a
+    competitive rate, and get me the deepest market analysis you can.”</div>
+  <div class="loop">
+    <div class="lstep"><span class="n">1</span><span class="act">buys Arc Gas Oracle</span><span class="px">$0.001</span><span class="st">SETTLED</span></div>
+    <div class="lstep"><span class="n">2</span><span class="act">buys USYC NAV Feed</span><span class="px">$0.004</span><span class="st">SETTLED</span></div>
+    <div class="lstep turn"><span class="n">3</span><span class="act">Deep Analysis is $0.05 — over the limit. Buys <em>Treasury Signal instead</em>.</span><span class="px">$0.008</span><span class="st">SETTLED</span></div>
+    <div class="lstep halt"><span class="n">4</span><span class="act">Stops, and escalates to its human:</span><span class="px"></span><span class="st">STOPPED</span></div>
+    <div class="said">“…please increase the per-transaction limit to at least $0.05.”</div>
+  </div>
+  <p class="note">$0.013 spent of a $0.10 daily budget. No human touched the loop until the agent hit the wall — then it asked, rather than took.</p>
+  <div class="auth">
+    <div class="a"><h4>The account</h4><p>Opened by a human only — SIWE or email OTP. An AI can never open one.</p></div>
+    <div class="a"><h4>The agent</h4><p>Registers itself, and starts at exactly zero allowance.</p></div>
+    <div class="a"><h4>The provider</h4><p>Lists itself by signing with the address it wants paid at.</p></div>
+  </div>
+  <div class="foot">OVOLYN · Programmable Money Hackathon 2026</div>
+  <div class="pageno">7</div>
 </section>
 
 <!-- 7 · Business model -->
@@ -239,28 +322,39 @@
       <p>Basis points on USDC/EURC rebalancing and cross-chain deposits.</p>
     </div>
   </div>
-  <p class="body" style="margin-top: 36px; color:#555;">Core metric: TVL held in agent accounts. Neutral infrastructure — every agent marketplace is a channel, not a competitor.</p>
+  <p class="body" style="margin-top: 36px; color:#555;">Core metric: TVL held in agent accounts. Neutral by construction — our service registry is open, listings are admitted by an automated probe rather than an approval queue, and every agent marketplace is a channel on top of us, not a competitor.</p>
   <div class="foot">OVOLYN · Programmable Money Hackathon 2026</div>
-  <div class="pageno">7</div>
+  <div class="pageno">8</div>
 </section>
 
 <!-- 8 · Roadmap -->
 <section class="slide">
   <div class="masthead">OVOLYN</div>
-  <div class="kicker">Roadmap</div>
-  <h2>From first payment to full bank by Demo Day.</h2>
-  <div class="steps">
-    <div class="step"><div class="date">JUL 23 ✓</div><div class="what done">Agent wallet · Gateway funding · first x402 nanopayment on Arc Testnet</div></div>
-    <div class="step"><div class="date">JUL 26</div><div class="what">Checkpoint 2 — repo + working payment loop</div></div>
-    <div class="step"><div class="date">AUG 02</div><div class="what">CFO console: policies, balances, live ledger · USYC auto-sweep</div></div>
-    <div class="step"><div class="date">AUG 09</div><div class="what">Final: CCTP deposit flow · USDC/EURC rebalancing · 3-min demo</div></div>
-    <div class="step"><div class="date">AUG 20</div><div class="what">Demo Day</div></div>
+  <div class="kicker">Status &amp; roadmap</div>
+  <h2>The bank is built. Next it holds real money.</h2>
+  <div class="cols">
+    <div class="col">
+      <h3>Shipped</h3>
+      <div class="li"><div class="date">JUL 23</div><div class="txt">Agent wallet · Gateway funding · first x402 nanopayment</div></div>
+      <div class="li"><div class="date">JUL 26</div><div class="txt">Checkpoint 2 — repo + working payment loop</div></div>
+      <div class="li"><div class="date">JUL 28</div><div class="txt">CCTP deposits · USYC auto-sweep · USDC/EURC via Swap</div></div>
+      <div class="li"><div class="date">AUG 01</div><div class="txt">Policy engine · open service registry · agent CLI &amp; keyed API</div></div>
+      <div class="li"><div class="date">AUG 02</div><div class="txt">Deployed and public · one-click run of all four flows</div></div>
+    </div>
+    <div class="col next">
+      <h3>Next</h3>
+      <div class="li"><div class="date">AUG 20</div><div class="txt">Demo Day</div></div>
+      <div class="li"><div class="date">Q3</div><div class="txt">Mainnet counterparties — real USDC against live x402 sellers</div></div>
+      <div class="li"><div class="date">Q3</div><div class="txt">Third-party providers listing themselves into the registry</div></div>
+      <div class="li"><div class="date">Q4</div><div class="txt">Yield share and treasury automation as the paid product</div></div>
+      <div class="li"><div class="date">Q4</div><div class="txt">Multi-agent org accounts — one balance sheet, many spenders</div></div>
+    </div>
   </div>
   <div class="endline">
     <code>github.com/gdongxi/ovolyn</code> &nbsp;·&nbsp; Tracks: Agentic Economy + DeFi &nbsp;·&nbsp; Solo build on Arc
   </div>
   <div class="foot">OVOLYN · Programmable Money Hackathon 2026</div>
-  <div class="pageno">8</div>
+  <div class="pageno">9</div>
 </section>
 
 </body>
