@@ -53,7 +53,11 @@ function dcw() {
  * attestation service will not sign until it has seen two confirmations
  * anyway: waiting for the confirmation ourselves first only pays for it twice.
  *
- * Circle's GET limit is 20/s and we poll at 2/s.
+ * Polled at 2s. The documented GET limit is 20/s and 500ms was well inside it,
+ * but a run at that rate drew a sustained 429 from the edge — an undocumented
+ * limit that then refused the CLI's calls for minutes afterwards, failing the
+ * two stages after the deposit. The seconds a tighter poll saves are not worth
+ * a rate limit arriving in the middle of a demo.
  */
 async function exec(
   walletId: string,
@@ -66,8 +70,8 @@ async function exec(
   const id = (res as any).data?.id as string;
   const SUCCESS = ["CONFIRMED", "COMPLETE"];
   const TERMINAL = [...SUCCESS, "FAILED", "CANCELLED", "DENIED"];
-  const POLL_MS = 500;
-  for (let i = 0; i < 360; i++) {
+  const POLL_MS = 2000;
+  for (let i = 0; i < 90; i++) {
     const t = await client.getTransaction({ id });
     const tx = (t as any).data?.transaction;
     if (tx?.state && ["FAILED", "CANCELLED", "DENIED"].includes(tx.state)) {
@@ -83,10 +87,10 @@ async function exec(
 async function fetchAttestation(burnTx: string): Promise<{ message: string; attestation: string }> {
   // Called the moment the burn is broadcast, so the first answers are a 404
   // ("Message not found") and then status pending_confirmations — both expected
-  // while Iris waits for its two confirmations. The service allows 40 requests
-  // a second; one is plenty, and it costs a poll interval less to notice.
+  // while Iris waits for its two confirmations. Left at 5s: see the note on
+  // exec() about the 429 a tighter poll drew.
   const url = `${IRIS}/v2/messages/${SRC_DOMAIN}?transactionHash=${burnTx}`;
-  for (let i = 0; i < 300; i++) {
+  for (let i = 0; i < 60; i++) {
     const r = await fetch(url);
     if (r.ok) {
       const j = (await r.json()) as { messages?: { status: string; message: string; attestation: string }[] };
@@ -95,7 +99,7 @@ async function fetchAttestation(burnTx: string): Promise<{ message: string; atte
         return { message: m.message, attestation: m.attestation };
       }
     }
-    await new Promise((r) => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 5000));
   }
   throw new Error("attestation timeout (5 min)");
 }
