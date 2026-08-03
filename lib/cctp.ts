@@ -1,4 +1,6 @@
 import { initiateDeveloperControlledWalletsClient } from "@circle-fin/developer-controlled-wallets";
+import { createPublicClient, http, erc20Abi } from "viem";
+import { sepolia } from "viem/chains";
 import { AGENT_WALLET } from "./arc";
 import { appendLedger } from "./store";
 
@@ -15,7 +17,26 @@ const ZERO32 = "0x" + "0".repeat(64);
 const FINALITY_FAST = 1000;
 const MAX_FEE_MICRO = "10000"; // up to $0.01
 
-const FEE = { type: "level", config: { feeLevel: "MEDIUM" } } as const;
+// Half the historical runs waited two Sepolia slots instead of one, which is
+// what a fee sitting close to base looks like. Testnet gas costs nothing.
+const FEE = { type: "level", config: { feeLevel: "HIGH" } } as const;
+
+// Approving costs a whole Ethereum inclusion cycle — measured at 12s or 24s
+// across six deposits, a quarter of the flow — and it buys nothing on a deposit
+// that is already covered. Top the allowance up in one transaction and let the
+// next several deposits skip the step entirely.
+const ALLOWANCE_TOPUP_MICRO = BigInt(1_000_000_000); // $1,000
+
+const sepoliaReader = createPublicClient({ chain: sepolia, transport: http() });
+
+async function currentAllowance(owner: string): Promise<bigint> {
+  return sepoliaReader.readContract({
+    address: USDC_SEPOLIA as `0x${string}`,
+    abi: erc20Abi,
+    functionName: "allowance",
+    args: [owner as `0x${string}`, TOKEN_MESSENGER_V2 as `0x${string}`],
+  });
+}
 
 function dcw() {
   return initiateDeveloperControlledWalletsClient({
@@ -24,27 +45,48 @@ function dcw() {
   });
 }
 
-async function exec(walletId: string, label: string, input: Record<string, unknown>): Promise<string> {
+/**
+ * Submit through a developer-controlled wallet and watch it land.
+ *
+ * `until: "hash"` returns as soon as the transaction has a hash — it has been
+ * broadcast, not yet confirmed. That is enough for the burn, because the
+ * attestation service will not sign until it has seen two confirmations
+ * anyway: waiting for the confirmation ourselves first only pays for it twice.
+ *
+ * Circle's GET limit is 20/s and we poll at 2/s.
+ */
+async function exec(
+  walletId: string,
+  label: string,
+  input: Record<string, unknown>,
+  until: "confirmed" | "hash" = "confirmed",
+): Promise<string> {
   const client = dcw();
   const res = await client.createContractExecutionTransaction({ walletId, fee: FEE, ...input } as never);
   const id = (res as any).data?.id as string;
   const SUCCESS = ["CONFIRMED", "COMPLETE"];
   const TERMINAL = [...SUCCESS, "FAILED", "CANCELLED", "DENIED"];
-  for (let i = 0; i < 90; i++) {
+  const POLL_MS = 500;
+  for (let i = 0; i < 360; i++) {
     const t = await client.getTransaction({ id });
     const tx = (t as any).data?.transaction;
-    if (tx?.state && TERMINAL.includes(tx.state)) {
-      if (!SUCCESS.includes(tx.state)) throw new Error(`${label}: ${tx.state}`);
-      return tx.txHash ?? "";
+    if (tx?.state && ["FAILED", "CANCELLED", "DENIED"].includes(tx.state)) {
+      throw new Error(`${label}: ${tx.state}`);
     }
-    await new Promise((r) => setTimeout(r, 2000));
+    if (until === "hash" && tx?.txHash) return tx.txHash;
+    if (tx?.state && TERMINAL.includes(tx.state)) return tx.txHash ?? "";
+    await new Promise((r) => setTimeout(r, POLL_MS));
   }
   throw new Error(`${label}: timeout`);
 }
 
 async function fetchAttestation(burnTx: string): Promise<{ message: string; attestation: string }> {
+  // Called the moment the burn is broadcast, so the first answers are a 404
+  // ("Message not found") and then status pending_confirmations — both expected
+  // while Iris waits for its two confirmations. The service allows 40 requests
+  // a second; one is plenty, and it costs a poll interval less to notice.
   const url = `${IRIS}/v2/messages/${SRC_DOMAIN}?transactionHash=${burnTx}`;
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 300; i++) {
     const r = await fetch(url);
     if (r.ok) {
       const j = (await r.json()) as { messages?: { status: string; message: string; attestation: string }[] };
@@ -53,7 +95,7 @@ async function fetchAttestation(burnTx: string): Promise<{ message: string; atte
         return { message: m.message, attestation: m.attestation };
       }
     }
-    await new Promise((r) => setTimeout(r, 5000));
+    await new Promise((r) => setTimeout(r, 1000));
   }
   throw new Error("attestation timeout (5 min)");
 }
@@ -80,16 +122,34 @@ export async function cctpDeposit(amountUsdc: number): Promise<DepositResult> {
   // burned-but-not-minted funds are recoverable only if this survives.
   let burnTx = "";
   try {
-    await exec(sepoliaWalletId, "approve", {
-      contractAddress: USDC_SEPOLIA,
-      abiFunctionSignature: "approve(address,uint256)",
-      abiParameters: [TOKEN_MESSENGER_V2, micro],
-    });
-    burnTx = await exec(sepoliaWalletId, "depositForBurn", {
-      contractAddress: TOKEN_MESSENGER_V2,
-      abiFunctionSignature: "depositForBurn(uint256,uint32,bytes32,address,bytes32,uint256,uint32)",
-      abiParameters: [micro, DST_DOMAIN, mintRecipient, USDC_SEPOLIA, ZERO32, MAX_FEE_MICRO, FINALITY_FAST],
-    });
+    // Only approve when the standing allowance cannot cover this burn. On the
+    // deposits that skip it, the burn lands a whole Ethereum slot earlier.
+    const owner = process.env.SEPOLIA_ADDRESS!;
+    let allowance = 0n;
+    try {
+      allowance = await currentAllowance(owner);
+    } catch {
+      allowance = 0n; // a read failure must not silently skip a needed approval
+    }
+    if (allowance < BigInt(micro)) {
+      await exec(sepoliaWalletId, "approve", {
+        contractAddress: USDC_SEPOLIA,
+        abiFunctionSignature: "approve(address,uint256)",
+        abiParameters: [TOKEN_MESSENGER_V2, ALLOWANCE_TOPUP_MICRO.toString()],
+      });
+    }
+    // Returns on the hash, not the confirmation: the attestation service waits
+    // for two confirmations regardless, so waiting here as well pays twice.
+    burnTx = await exec(
+      sepoliaWalletId,
+      "depositForBurn",
+      {
+        contractAddress: TOKEN_MESSENGER_V2,
+        abiFunctionSignature: "depositForBurn(uint256,uint32,bytes32,address,bytes32,uint256,uint32)",
+        abiParameters: [micro, DST_DOMAIN, mintRecipient, USDC_SEPOLIA, ZERO32, MAX_FEE_MICRO, FINALITY_FAST],
+      },
+      "hash",
+    );
     const { message, attestation } = await fetchAttestation(burnTx);
     const mintTx = await exec(orchWalletId, "receiveMessage", {
       contractAddress: MESSAGE_TRANSMITTER_V2,
