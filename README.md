@@ -91,3 +91,7 @@ docker compose up -d --build
 ## Team
 
 Solo build.
+
+## License
+
+[MIT](LICENSE) — use it, change it, ship it, sell it. Keep the notice.
