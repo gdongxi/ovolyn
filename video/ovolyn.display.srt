@@ -95,7 +95,7 @@ and those are Sepolia's twelve-second
 slots.
 
 22
-00:01:08,1000 --> 00:01:12,273
+00:01:09,000 --> 00:01:12,273
 The standard path would be fifteen to
 nineteen minutes.
 

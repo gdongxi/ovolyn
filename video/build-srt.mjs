@@ -107,10 +107,16 @@ const SPOKEN = [
 const speak = (s) => SPOKEN.reduce((a, [re, to]) => a.replace(re, to), s);
 
 const words = (s) => s.trim().split(/\s+/).filter(Boolean).length;
-const clock = (s) => {
-  const ms = Math.round((s % 1) * 1000);
-  const t = Math.floor(s);
-  return `${String((t / 3600) | 0).padStart(2, "0")}:${String(((t / 60) | 0) % 60).padStart(2, "0")}:${String(t % 60).padStart(2, "0")},${String(ms).padStart(3, "0")}`;
+
+/** Round to whole milliseconds FIRST, then split.
+ *  Flooring the seconds and rounding the fraction separately loses the carry:
+ *  68.9996 became "00:01:08,1000", a four-digit millisecond field that parsers
+ *  read as 68.1 — the cue then opened early and overlapped the one before it. */
+const clock = (sec) => {
+  const total = Math.max(0, Math.round(sec * 1000));
+  const ms = total % 1000;
+  const s = (total - ms) / 1000;
+  return `${String((s / 3600) | 0).padStart(2, "0")}:${String(((s / 60) | 0) % 60).padStart(2, "0")}:${String(s % 60).padStart(2, "0")},${String(ms).padStart(3, "0")}`;
 };
 
 /** One clause per cue. Split at sentence ends, then at clause marks, then —
@@ -196,3 +202,32 @@ for (const r of report) {
 }
 const bad = report.filter((r) => r.over).length;
 console.log(bad ? `\n  ❌ ${bad} 幕的旁白装不下——删字或调 RATE` : "\n  ✅ 每一幕都装得下");
+
+// Read the files back and check them as a parser would. Writing a timestamp is
+// not the same as writing a valid one, and the malformed millisecond that
+// caused two cues to overlap was invisible until something parsed it.
+console.log("\n  自检（回读文件，按解析器的眼光看）");
+let problems = 0;
+for (const file of ["video/ovolyn.display.srt", "video/ovolyn.tts.srt"]) {
+  const raw = (await import("node:fs")).readFileSync(file, "utf8");
+  const blocks = raw.trim().split("\n\n");
+  const secs = (s) => {
+    const m = s.match(/^(\d{2}):(\d{2}):(\d{2}),(\d{3})$/);
+    if (!m) { console.log(`  ❌ ${file} 时间码畸形：“${s}”`); problems++; return NaN; }
+    return +m[1] * 3600 + +m[2] * 60 + +m[3] + +m[4] / 1000;
+  };
+  let prevEnd = -1;
+  blocks.forEach((b, i) => {
+    const [n, time, ...text] = b.split("\n");
+    if (Number(n) !== i + 1) { console.log(`  ❌ ${file} 序号跳号于 #${n}`); problems++; }
+    const [a, z] = time.split(" --> ");
+    const s = secs(a), e = secs(z);
+    if (e <= s) { console.log(`  ❌ ${file} #${n} 结束不晚于开始`); problems++; }
+    if (s < prevEnd - 1e-9) { console.log(`  ❌ ${file} #${n} 与上一条重叠`); problems++; }
+    if (text.length > MAX_LINES) { console.log(`  ❌ ${file} #${n} 有 ${text.length} 行`); problems++; }
+    if (e > 180.001) { console.log(`  ❌ ${file} #${n} 超出 180s`); problems++; }
+    prevEnd = e;
+  });
+}
+console.log(problems === 0 ? "  ✅ 时间码合法、无重叠、无跳号、不超 2 行、不超 180s" : `  ❌ ${problems} 处问题`);
+process.exit(problems === 0 && bad === 0 ? 0 : 1);
