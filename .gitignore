@@ -26,3 +26,5 @@ data/challenges.json
 
 # 录制成片不进仓库
 video/*.mp4
+video/*.png
+video/*.jpg
