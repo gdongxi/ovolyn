@@ -1,0 +1,157 @@
+1
+00:00:00,000 --> 00:00:04,237
+AI agents are starting to
+earn and spend real money.
+
+2
+00:00:04,237 --> 00:00:07,627
+But an agent's money has nowhere to live.
+
+3
+00:00:07,627 --> 00:00:12,712
+It sits in a raw wallet,
+earning nothing, governed by nothing —
+
+4
+00:00:12,712 --> 00:00:19,492
+because a private key is all-or-nothing. Ovolyn is
+a bank account built for an autonomous depositor.
+
+5
+00:00:19,492 --> 00:00:25,000
+I've just started a live run on
+Arc; let's talk while it settles.
+
+6
+00:00:25,000 --> 00:00:30,833
+One account on Arc, four flows. Deposit
+USDC from any chain over cross-chain transfer.
+
+7
+00:00:30,833 --> 00:00:33,750
+Idle balance sweeps into
+tokenized treasury yield.
+
+8
+00:00:33,750 --> 00:00:40,833
+A human sets the policy. And the agent
+spends inside it, on its own, over x four-oh-two.
+
+9
+00:00:40,833 --> 00:00:44,167
+It is built on Circle's own rails —
+
+10
+00:00:44,167 --> 00:00:55,000
+Agent Stack for the wallet, Gateway for settlement, cross-chain for the deposit,
+App Kit for currency, and treasury bills for the yield. Nothing here is simulated.
+
+11
+00:00:55,000 --> 00:00:59,439
+Deposit landed — three USDC
+burned on Sepolia, minted on Arc.
+
+12
+00:00:59,439 --> 00:01:08,719
+Thirty-four seconds, and I want to be precise about where that goes: Circle's
+fast attestation waits two Ethereum confirmations — Sepolia's twelve-second slots.
+
+13
+00:01:08,719 --> 00:01:12,351
+The standard path would be
+fifteen to nineteen minutes.
+
+14
+00:01:12,351 --> 00:01:15,175
+Arc's own blocks are half a second.
+
+15
+00:01:15,175 --> 00:01:18,000
+Every hash here is live on Arcscan.
+
+16
+00:01:18,000 --> 00:01:27,000
+The balance crossed the idle threshold, so the
+account swept the excess into tokenized treasury bills.
+
+17
+00:01:27,000 --> 00:01:31,500
+You can see the exact
+amount minted, on-chain.
+
+18
+00:01:31,500 --> 00:01:36,000
+The war chest earns
+while the agent sleeps.
+
+19
+00:01:36,000 --> 00:01:46,000
+Then it spent. A gas oracle priced at a tenth of a cent, bought from an
+independent merchant, settled through Gateway — four-oh-two to two hundred.
+
+20
+00:01:46,000 --> 00:01:54,077
+These listings are open: anyone lists by signing with the
+address they want paid at, and an automated probe admits them.
+
+21
+00:01:54,077 --> 00:01:56,000
+There is no approval queue.
+
+22
+00:01:56,000 --> 00:02:00,500
+And then it tried to
+spend five cents. Refused.
+
+23
+00:02:00,500 --> 00:02:08,000
+The policy caps any single transaction at
+one cent, so the payment never happened —
+
+24
+00:02:08,000 --> 00:02:17,000
+and the refusal is written into the ledger with its
+reason, right next to the payments that succeeded.
+
+25
+00:02:17,000 --> 00:02:22,000
+A bank that only records
+what succeeded isn't a bank.
+
+26
+00:02:22,000 --> 00:02:24,847
+That boundary is what makes autonomy safe.
+
+27
+00:02:24,847 --> 00:02:30,136
+Given an open goal, the agent bought
+the three services it could afford.
+
+28
+00:02:30,136 --> 00:02:37,864
+When the deepest analysis came in over the limit,
+it didn't overreach and it didn't quietly drop it —
+
+29
+00:02:37,864 --> 00:02:43,966
+it stopped and asked me to raise the
+limit, naming the service and the number.
+
+30
+00:02:43,966 --> 00:02:46,000
+It asked, rather than took.
+
+31
+00:02:46,000 --> 00:02:50,375
+Authority is created by humans;
+permission is derived to machines.
+
+32
+00:02:50,375 --> 00:02:54,750
+Built on Arc, with Circle's
+stack. Agentic Economy and dee-fye.
+
+33
+00:02:54,750 --> 00:03:00,000
+We monetize the balance sheet —
+payments are why the balance exists.
