@@ -28,7 +28,14 @@ export function SignInForm({ emailWorks = true }: { emailWorks?: boolean }) {
     setError(null);
     const wallet = injectedWallet();
     if (!wallet) {
-      setError("No wallet detected. Install MetaMask, OKX Wallet or Binance Wallet — or use email below.");
+      // Do not send them to the other door when that door is shut: on testnet
+      // no mail provider is wired, so the email flow accepts an address and
+      // delivers nothing.
+      setError(
+        emailWorks
+          ? "No wallet detected. Install MetaMask, OKX Wallet or Binance Wallet — or use email below."
+          : "No wallet detected. This account opens with an EVM wallet — MetaMask, Rabby, OKX and Binance all work.",
+      );
       return;
     }
     setBusy("wallet");
