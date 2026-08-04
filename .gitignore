@@ -23,3 +23,6 @@ data/challenges.json
 
 # typescript build artefact
 *.tsbuildinfo
+
+# 录制成片不进仓库
+video/*.mp4
