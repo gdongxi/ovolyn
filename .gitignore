@@ -5,26 +5,25 @@ SUBMISSION_FORM_ANSWERS.md
 # editor/agent tooling, not the project
 .claude/
 
-node_modules/
+# secrets and local config
 .env
 .env.local
+
+# dependencies and build output
+node_modules/
 .next/
 dist/
+*.tsbuildinfo
+.vercel
+
+# runtime state — the ledger and accounts belong to a deployment, not the repo
+data/
+
+# noise
 .DS_Store
 *.log
-.vercel
-supabase/.temp/
-data/
-data/accounts.json
-data/challenges.json
 
-# deployment
-.env
-
-# typescript build artefact
-*.tsbuildinfo
-
-# 录制成片不进仓库
+# recorded footage stays out; the recording harness itself is tracked
 video/*.mp4
 video/*.png
 video/*.jpg
